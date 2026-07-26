@@ -45,10 +45,10 @@ local function fetchModuleSource(name)
 	local cachePath = "dex/modules/" .. name .. ".lua"
 	local metaPath = cachePath .. ".meta"
 
-	if env.isfile and env.readfile and env.isfile(cachePath) and env.isfile(metaPath) then
-		local okMeta, savedAt = pcall(function() return tonumber(env.readfile(metaPath)) end)
+	if isfile and readfile and isfile(cachePath) and isfile(metaPath) then
+		local okMeta, savedAt = pcall(function() return tonumber(readfile(metaPath)) end)
 		if okMeta and savedAt and (os.time() - savedAt) < ModuleCacheTTL then
-			local okRead, cached = pcall(env.readfile, cachePath)
+			local okRead, cached = pcall(readfile, cachePath)
 			if okRead and cached and cached ~= "" then
 				return cached
 			end
@@ -60,18 +60,18 @@ local function fetchModuleSource(name)
 	end)
 
 	if ok and result and result ~= "" then
-		if env.writefile and env.isfolder and env.makefolder then
-			if not env.isfolder("dex/modules") then pcall(env.makefolder, "dex/modules") end
-			pcall(env.writefile, cachePath, result)
-			pcall(env.writefile, metaPath, tostring(os.time()))
+		if writefile and isfolder and makefolder then
+			if not isfolder("dex/modules") then pcall(makefolder, "dex/modules") end
+			pcall(writefile, cachePath, result)
+			pcall(writefile, metaPath, tostring(os.time()))
 		end
 		return result
 	end
 
 	warn("[BLADEX] no se pudo descargar el m贸dulo '" .. name .. "': " .. tostring(result))
 
-	if env.isfile and env.readfile and env.isfile(cachePath) then
-		local okCache, cached = pcall(env.readfile, cachePath)
+	if isfile and readfile and isfile(cachePath) then
+		local okCache, cached = pcall(readfile, cachePath)
 		if okCache and cached and cached ~= "" then
 			warn("[BLADEX] usando copia en cache (posiblemente vieja) de '" .. name .. "'")
 			return cached
