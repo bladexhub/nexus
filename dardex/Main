@@ -37,7 +37,7 @@ cloneref = cloneref or function(ref)
 	return f.invalidate
 end
 
-local BASE_URL = "https://raw.githubusercontent.com/TU_USUARIO/TU_REPO/main/modules/"
+local BASE_URL = "https://raw.githubusercontent.com/bladexhub/nexus/refs/heads/main/dardex/"
 local ModuleNames = {"Console","Explorer","Lib","ModelViewer","Properties","SaveInstance","ScriptViewer"}
 local ModuleCacheTTL = 24 * 60 * 60 -- 24h
 
@@ -56,7 +56,7 @@ local function fetchModuleSource(name)
 	end
 
 	local ok, result = pcall(function()
-		return game:HttpGet(BASE_URL .. name .. ".lua")
+		return game:HttpGet(BASE_URL .. name)
 	end)
 
 	if ok and result and result ~= "" then
@@ -68,7 +68,7 @@ local function fetchModuleSource(name)
 		return result
 	end
 
-	warn("[BLADEX] no se pudo descargar el módulo '" .. name .. "': " .. tostring(result))
+	warn("[BLADEX] no se pudo descargar el m贸dulo '" .. name .. "': " .. tostring(result))
 
 	if env.isfile and env.readfile and env.isfile(cachePath) then
 		local okCache, cached = pcall(env.readfile, cachePath)
@@ -92,13 +92,13 @@ for _, name in ipairs(ModuleNames) do
 			if ok and type(moduleFn) == "function" then
 				EmbeddedModules[name] = moduleFn
 			else
-				warn("[BLADEX] el módulo '" .. name .. "' no devolvió una función válida: " .. tostring(moduleFn))
+				warn("[BLADEX] el m贸dulo '" .. name .. "' no devolvi贸 una funci贸n v谩lida: " .. tostring(moduleFn))
 			end
 		else
 			warn("[BLADEX] error de sintaxis descargando '" .. name .. "': " .. tostring(compileErr))
 		end
 	else
-		warn("[BLADEX] módulo '" .. name .. "' no disponible — esa parte de Dark Dex no va a funcionar")
+		warn("[BLADEX] m贸dulo '" .. name .. "' no disponible 鈥� esa parte de Dark Dex no va a funcionar")
 	end
 end
 -- inject virutal env cuz why not
@@ -714,7 +714,7 @@ Main = (function()
 		if x[1] ~= t then incompatibleMessage("WRAPPER FAILED TO CYCLIC #2") end
 		
 		if game ~= workspace.Parent then
-			incompatibleMessage("WRAPPER NO CACHE (game ≠ workspace.Parent)", true)
+			incompatibleMessage("WRAPPER NO CACHE (game 鈮� workspace.Parent)", true)
 			game = workspace.Parent
 		end
 		
@@ -1429,6 +1429,57 @@ Main = (function()
 		local ThemeBg = Color3.fromRGB(22,22,28)
 		local ThemeInputBg = Color3.fromRGB(32,32,40)
 
+		local BASE_WIDTH = 1080
+		local BASE_HEIGHT = 2400
+
+		local function S(px)
+			local viewport = workspace.CurrentCamera.ViewportSize
+			local scale = math.min(viewport.X / BASE_WIDTH, viewport.Y / BASE_HEIGHT)
+			return math.floor(px * scale + 0.5)
+		end
+
+		local ThemeGlassBg = Color3.fromRGB(30,30,38)
+		local ThemeStroke = Color3.fromRGB(255,255,255)
+
+		local function getIcon(iconName)
+			if not IconLoader or not IconLoader.GetAny then return nil end
+			local ok, result = pcall(IconLoader.GetAny, {"lucide","solar","sfsymbols","gravity","swords"}, iconName)
+			if ok then return result end
+			return nil
+		end
+
+		local function applyGlass(frame, radius, strokeTransparency)
+			local corner = Instance.new("UICorner")
+			corner.CornerRadius = UDim.new(0, radius or S(12))
+			corner.Parent = frame
+			local stroke = Instance.new("UIStroke")
+			stroke.Color = ThemeStroke
+			stroke.Transparency = strokeTransparency or 0.9
+			stroke.Thickness = 1
+			stroke.Parent = frame
+			local gradient = Instance.new("UIGradient")
+			gradient.Rotation = 90
+			gradient.Transparency = NumberSequence.new({
+				NumberSequenceKeypoint.new(0, 0.85),
+				NumberSequenceKeypoint.new(1, 0.95),
+			})
+			gradient.Parent = frame
+			return corner, stroke
+		end
+
+		local function bindTouchFeedback(button, restColor, pressColor)
+			button.InputBegan:Connect(function(input)
+				if input.UserInputType == Enum.UserInputType.Touch or input.UserInputType == Enum.UserInputType.MouseButton1 then
+					button.BackgroundColor3 = pressColor
+				end
+			end)
+			button.InputEnded:Connect(function(input)
+				if input.UserInputType == Enum.UserInputType.Touch or input.UserInputType == Enum.UserInputType.MouseButton1 then
+					button.BackgroundColor3 = restColor
+				end
+			end)
+		end
+
 		local Models = {
 			{Id = "gemini-3.6-flash", Label = "Gemini 3.6 Flash (High Thinking)"},
 			{Id = "gemini-3.5-flash-lite", Label = "Gemini 3.5 Flash Lite (Fast)"},
@@ -1465,8 +1516,8 @@ Main = (function()
 			end
 			local trimmed = path:sub(start)
 			for seg in string.gmatch(trimmed, "([^%.]+)") do
-				local ok, next = pcall(function() return cur:FindFirstChild(seg) end)
-				if not ok or not next then
+				local ok, found = pcall(function() return cur:FindFirstChild(seg) end)
+				if not ok or not found then
 					if cur == game then
 						local ok2, srv = pcall(function() return game:GetService(seg) end)
 						if ok2 and srv then
@@ -1478,7 +1529,7 @@ Main = (function()
 						return nil, "could not find '" .. seg .. "' under " .. tostring(cur)
 					end
 				else
-					cur = next
+					cur = found
 				end
 			end
 			return cur, nil
@@ -1818,9 +1869,9 @@ Main = (function()
 			return {{function_declarations = decls}}
 		end
 
-		local SystemPrompt = [[You are Dex Copilot, an AI assistant embedded inside Dark Dex — an in-game Roblox debugging/exploration tool similar to Roblox Studio's Explorer/Properties/Console. The user runs Dark Dex to inspect the currently running Roblox place at runtime.
+		local SystemPrompt = [[You are Dex Copilot, an AI assistant embedded inside Dark Dex 鈥� an in-game Roblox debugging/exploration tool similar to Roblox Studio's Explorer/Properties/Console. The user runs Dark Dex to inspect the currently running Roblox place at runtime.
 
-You have tools to explore the DataModel (workspace, services, players, GUIs, scripts, etc.) and to query game metadata. Prefer calling tools over guessing. Chain tool calls when you need more information — the user does not have to confirm each call. When you are done gathering context, produce a concise, well-formatted response.
+You have tools to explore the DataModel (workspace, services, players, GUIs, scripts, etc.) and to query game metadata. Prefer calling tools over guessing. Chain tool calls when you need more information 鈥� the user does not have to confirm each call. When you are done gathering context, produce a concise, well-formatted response.
 
 Available tools include:
 - list_children, get_properties, get_attributes, get_cframe: inspect instances progressively
@@ -1898,9 +1949,9 @@ Guidelines:
 			text = xmlEscape(text)
 			-- Bold: **text**
 			text = text:gsub("%*%*(.-)%*%*", "<b>%1</b>")
-			-- Italic: *text* (single) — but avoid matching leftover ** already handled
+			-- Italic: *text* (single) 鈥� but avoid matching leftover ** already handled
 			text = text:gsub("%*([^%*\n]+)%*", "<i>%1</i>")
-			-- Headings-ish: ##, ###  → just bold + slightly larger
+			-- Headings-ish: ##, ###  鈫� just bold + slightly larger
 			text = text:gsub("###%s(.-)\n", "<b>%1</b>\n")
 			text = text:gsub("##%s(.-)\n", "<b>%1</b>\n")
 			-- Restore inline codes
@@ -1998,7 +2049,7 @@ Guidelines:
 
 			local apiKey = Settings.AI.ApiKey
 			if not apiKey or apiKey == "" then
-				addBubble("bot", "⚠ Please set your Gemini API key in the settings panel (top of the AI window).")
+				addBubble("bot", "鈿� Please set your Gemini API key in the settings panel (top of the AI window).")
 				AI.Running = false
 				setStatus("")
 				return
@@ -2014,12 +2065,12 @@ Guidelines:
 				iterations = iterations + 1
 				local decoded, err = callGemini(model, AI.History, apiKey)
 				if not decoded then
-					addBubble("bot", "⚠ " .. tostring(err))
+					addBubble("bot", "鈿� " .. tostring(err))
 					break
 				end
 				local cand = decoded.candidates and decoded.candidates[1]
 				if not cand or not cand.content or not cand.content.parts then
-					addBubble("bot", "⚠ Empty response from Gemini.")
+					addBubble("bot", "鈿� Empty response from Gemini.")
 					break
 				end
 				local parts = cand.content.parts
@@ -2049,7 +2100,7 @@ Guidelines:
 				local respParts = {}
 				for _, fc in ipairs(functionCalls) do
 					local tool = tools[fc.name]
-					addBubble("tool", "› " .. fc.name .. "(" .. httpService:JSONEncode(fc.args or {}):sub(1,200) .. ")")
+					addBubble("tool", "鈥� " .. fc.name .. "(" .. httpService:JSONEncode(fc.args or {}):sub(1,200) .. ")")
 					setStatus("Calling tool: " .. fc.name)
 					local result
 					if not tool then
@@ -2065,7 +2116,7 @@ Guidelines:
 			end
 
 			if iterations >= maxIter and not AI.SessionCancelled then
-				addBubble("bot", "⚠ Reached max iterations (" .. maxIter .. "). Ask me to continue if you want more.")
+				addBubble("bot", "鈿� Reached max iterations (" .. maxIter .. "). Ask me to continue if you want more.")
 			end
 
 			AI.Running = false
@@ -2095,45 +2146,61 @@ Guidelines:
 		function AI.Init()
 			local window = Lib.Window.new()
 			window:SetTitle("AI Copilot")
-			window:Resize(420, 520)
+			window:Resize(S(420), S(520))
 			AI.Window = window
 
 			local content = window.GuiElems.Content
 			content.BackgroundColor3 = ThemeBg
 
-			-- Settings bar (model dropdown + api key)
+			local bgGradient = Instance.new("UIGradient", content)
+			bgGradient.Rotation = 90
+			bgGradient.Color = ColorSequence.new({
+				ColorSequenceKeypoint.new(0, Color3.fromRGB(22,22,30)),
+				ColorSequenceKeypoint.new(1, Color3.fromRGB(14,14,20)),
+			})
+
 			local settingsBar = Instance.new("Frame")
-			settingsBar.BackgroundColor3 = Color3.fromRGB(26,26,32)
+			settingsBar.BackgroundColor3 = ThemeGlassBg
 			settingsBar.BorderSizePixel = 0
-			settingsBar.Size = UDim2.new(1,0,0,58)
+			settingsBar.Position = UDim2.new(0,S(8),0,S(8))
+			settingsBar.Size = UDim2.new(1,-S(16),0,S(76))
 			settingsBar.Parent = content
+			applyGlass(settingsBar, S(16), 0.85)
 
 			local modelLabel = Instance.new("TextLabel", settingsBar)
 			modelLabel.BackgroundTransparency = 1
 			modelLabel.Font = Enum.Font.GothamMedium
-			modelLabel.TextSize = 11
+			modelLabel.TextSize = S(11)
 			modelLabel.TextColor3 = ThemeSubtle
 			modelLabel.TextXAlignment = Enum.TextXAlignment.Left
-			modelLabel.Position = UDim2.new(0,10,0,4)
-			modelLabel.Size = UDim2.new(0,60,0,12)
+			modelLabel.Position = UDim2.new(0,S(10),0,S(4))
+			modelLabel.Size = UDim2.new(0,S(60),0,S(12))
 			modelLabel.Text = "MODEL"
 
 			local modelButton = Instance.new("TextButton", settingsBar)
 			modelButton.BackgroundColor3 = ThemeInputBg
 			modelButton.BorderSizePixel = 0
 			modelButton.Font = Enum.Font.Gotham
-			modelButton.TextSize = 12
+			modelButton.TextSize = S(12)
 			modelButton.TextColor3 = ThemeText
 			modelButton.TextXAlignment = Enum.TextXAlignment.Left
-			modelButton.Position = UDim2.new(0,10,0,16)
-			modelButton.Size = UDim2.new(0.5,-14,0,20)
+			modelButton.Position = UDim2.new(0,S(10),0,S(16))
+			modelButton.Size = UDim2.new(0.5,-S(14),0,S(24))
 			modelButton.AutoButtonColor = false
-			local mbCorner = Instance.new("UICorner", modelButton)
-			mbCorner.CornerRadius = UDim.new(0,6)
+			applyGlass(modelButton, S(8), 0.92)
+			bindTouchFeedback(modelButton, ThemeInputBg, Color3.fromRGB(44,44,54))
 			local mbPad = Instance.new("UIPadding", modelButton)
-			mbPad.PaddingLeft = UDim.new(0,8)
-			mbPad.PaddingRight = UDim.new(0,8)
+			mbPad.PaddingLeft = UDim.new(0,S(30))
+			mbPad.PaddingRight = UDim.new(0,S(8))
 			AI.ModelDropdown = modelButton
+
+			local modelIcon = Instance.new("ImageLabel", modelButton)
+			modelIcon.BackgroundTransparency = 1
+			modelIcon.AnchorPoint = Vector2.new(0,0.5)
+			modelIcon.Position = UDim2.new(0,S(8),0.5,0)
+			modelIcon.Size = UDim2.new(0,S(14),0,S(14))
+			modelIcon.Image = getIcon("settings") or ""
+			modelIcon.ImageColor3 = ThemeSubtle
 
 			local function refreshModelLabel()
 				local id = Settings.AI.Model
@@ -2145,8 +2212,8 @@ Guidelines:
 			modelButton.MouseButton1Click:Connect(function()
 				local idx = 1
 				for i, m in ipairs(Models) do if m.Id == Settings.AI.Model then idx = i break end end
-				local next = Models[(idx % #Models) + 1]
-				Settings.AI.Model = next.Id
+				local nextModel = Models[(idx % #Models) + 1]
+				Settings.AI.Model = nextModel.Id
 				refreshModelLabel()
 				if Main.SaveSettings then pcall(Main.SaveSettings) end
 			end)
@@ -2154,32 +2221,40 @@ Guidelines:
 			local keyLabel = Instance.new("TextLabel", settingsBar)
 			keyLabel.BackgroundTransparency = 1
 			keyLabel.Font = Enum.Font.GothamMedium
-			keyLabel.TextSize = 11
+			keyLabel.TextSize = S(11)
 			keyLabel.TextColor3 = ThemeSubtle
 			keyLabel.TextXAlignment = Enum.TextXAlignment.Left
-			keyLabel.Position = UDim2.new(0.5,4,0,4)
-			keyLabel.Size = UDim2.new(0.5,-14,0,12)
+			keyLabel.Position = UDim2.new(0.5,S(4),0,S(4))
+			keyLabel.Size = UDim2.new(0.5,-S(14),0,S(12))
 			keyLabel.Text = "API KEY"
 
 			local keyBox = Instance.new("TextBox", settingsBar)
 			keyBox.BackgroundColor3 = ThemeInputBg
 			keyBox.BorderSizePixel = 0
 			keyBox.Font = Enum.Font.Code
-			keyBox.TextSize = 12
+			keyBox.TextSize = S(12)
 			keyBox.TextColor3 = ThemeText
-			keyBox.PlaceholderText = "Paste Gemini API key…"
+			keyBox.PlaceholderText = "Paste Gemini API key鈥�"
 			keyBox.PlaceholderColor3 = Color3.fromRGB(100,100,110)
 			keyBox.TextXAlignment = Enum.TextXAlignment.Left
 			keyBox.ClearTextOnFocus = false
-			keyBox.Position = UDim2.new(0.5,4,0,16)
-			keyBox.Size = UDim2.new(0.5,-14,0,20)
+			keyBox.Position = UDim2.new(0.5,S(4),0,S(16))
+			keyBox.Size = UDim2.new(0.5,-S(14),0,S(24))
 			keyBox.Text = Settings.AI.ApiKey or ""
-			local kbCorner = Instance.new("UICorner", keyBox)
-			kbCorner.CornerRadius = UDim.new(0,6)
+			applyGlass(keyBox, S(8), 0.92)
 			local kbPad = Instance.new("UIPadding", keyBox)
-			kbPad.PaddingLeft = UDim.new(0,8)
-			kbPad.PaddingRight = UDim.new(0,8)
+			kbPad.PaddingLeft = UDim.new(0,S(30))
+			kbPad.PaddingRight = UDim.new(0,S(8))
 			AI.ApiKeyBox = keyBox
+
+			local keyIcon = Instance.new("ImageLabel", keyBox)
+			keyIcon.BackgroundTransparency = 1
+			keyIcon.AnchorPoint = Vector2.new(0,0.5)
+			keyIcon.Position = UDim2.new(0,S(8),0.5,0)
+			keyIcon.Size = UDim2.new(0,S(14),0,S(14))
+			keyIcon.Image = getIcon("lock") or ""
+			keyIcon.ImageColor3 = ThemeSubtle
+
 			AI._SaveToken = 0
 			keyBox:GetPropertyChangedSignal("Text"):Connect(function()
 				Settings.AI.ApiKey = keyBox.Text
@@ -2190,95 +2265,114 @@ Guidelines:
 				end)
 			end)
 
-			-- Clear + status
 			local clearBtn = Instance.new("TextButton", settingsBar)
 			clearBtn.BackgroundColor3 = ThemeInputBg
 			clearBtn.BorderSizePixel = 0
-			clearBtn.Font = Enum.Font.GothamMedium
-			clearBtn.TextSize = 11
-			clearBtn.TextColor3 = ThemeSubtle
-			clearBtn.Position = UDim2.new(0,10,0,40)
-			clearBtn.Size = UDim2.new(0,70,0,14)
 			clearBtn.AutoButtonColor = false
-			clearBtn.Text = "Clear chat"
-			local cbCorner = Instance.new("UICorner", clearBtn)
-			cbCorner.CornerRadius = UDim.new(0,4)
+			clearBtn.Text = ""
+			clearBtn.Position = UDim2.new(0,S(10),0,S(46))
+			clearBtn.Size = UDim2.new(0,S(78),0,S(20))
+			applyGlass(clearBtn, S(6), 0.92)
+			bindTouchFeedback(clearBtn, ThemeInputBg, Color3.fromRGB(50,32,32))
+
+			local clearIcon = Instance.new("ImageLabel", clearBtn)
+			clearIcon.BackgroundTransparency = 1
+			clearIcon.AnchorPoint = Vector2.new(0,0.5)
+			clearIcon.Position = UDim2.new(0,S(8),0.5,0)
+			clearIcon.Size = UDim2.new(0,S(12),0,S(12))
+			clearIcon.Image = getIcon("trash-2") or ""
+			clearIcon.ImageColor3 = ThemeSubtle
+
+			local clearLabel = Instance.new("TextLabel", clearBtn)
+			clearLabel.BackgroundTransparency = 1
+			clearLabel.Font = Enum.Font.GothamMedium
+			clearLabel.TextSize = S(11)
+			clearLabel.TextColor3 = ThemeSubtle
+			clearLabel.TextXAlignment = Enum.TextXAlignment.Left
+			clearLabel.Position = UDim2.new(0,S(24),0,0)
+			clearLabel.Size = UDim2.new(1,-S(28),1,0)
+			clearLabel.Text = "Clear chat"
+
 			clearBtn.MouseButton1Click:Connect(AI.Clear)
 
 			local statusLabel = Instance.new("TextLabel", settingsBar)
 			statusLabel.BackgroundTransparency = 1
 			statusLabel.Font = Enum.Font.Gotham
-			statusLabel.TextSize = 11
+			statusLabel.TextSize = S(11)
 			statusLabel.TextColor3 = ThemeAccent
 			statusLabel.TextXAlignment = Enum.TextXAlignment.Right
-			statusLabel.Position = UDim2.new(0.5,4,0,40)
-			statusLabel.Size = UDim2.new(0.5,-14,0,14)
+			statusLabel.Position = UDim2.new(0.5,S(4),0,S(46))
+			statusLabel.Size = UDim2.new(0.5,-S(14),0,S(20))
 			statusLabel.Text = ""
 			AI.StatusLabel = statusLabel
 
-			-- Chat area
 			local chatFrame = Instance.new("ScrollingFrame")
 			chatFrame.BackgroundTransparency = 1
 			chatFrame.BorderSizePixel = 0
-			chatFrame.Position = UDim2.new(0,0,0,60)
-			chatFrame.Size = UDim2.new(1,0,1,-108)
+			chatFrame.Position = UDim2.new(0,S(8),0,S(92))
+			chatFrame.Size = UDim2.new(1,-S(16),1,-S(160))
 			chatFrame.CanvasSize = UDim2.new(0,0,0,0)
 			chatFrame.AutomaticCanvasSize = Enum.AutomaticSize.Y
-			chatFrame.ScrollBarThickness = 4
+			chatFrame.ScrollBarThickness = S(4)
 			chatFrame.ScrollBarImageColor3 = Color3.fromRGB(80,80,90)
 			chatFrame.Parent = content
 			local layout = Instance.new("UIListLayout", chatFrame)
-			layout.Padding = UDim.new(0,6)
+			layout.Padding = UDim.new(0,S(6))
 			layout.SortOrder = Enum.SortOrder.LayoutOrder
 			local chatPad = Instance.new("UIPadding", chatFrame)
-			chatPad.PaddingLeft = UDim.new(0,8)
-			chatPad.PaddingRight = UDim.new(0,8)
-			chatPad.PaddingTop = UDim.new(0,8)
-			chatPad.PaddingBottom = UDim.new(0,8)
+			chatPad.PaddingLeft = UDim.new(0,S(8))
+			chatPad.PaddingRight = UDim.new(0,S(8))
+			chatPad.PaddingTop = UDim.new(0,S(8))
+			chatPad.PaddingBottom = UDim.new(0,S(8))
 			AI.ChatMessages = chatFrame
 
-			-- Input area
 			local inputBar = Instance.new("Frame")
-			inputBar.BackgroundColor3 = Color3.fromRGB(26,26,32)
+			inputBar.BackgroundColor3 = ThemeGlassBg
 			inputBar.BorderSizePixel = 0
-			inputBar.Position = UDim2.new(0,0,1,-48)
-			inputBar.Size = UDim2.new(1,0,0,48)
+			inputBar.Position = UDim2.new(0,S(8),1,-S(56))
+			inputBar.Size = UDim2.new(1,-S(16),0,S(48))
 			inputBar.Parent = content
+			applyGlass(inputBar, S(14), 0.85)
 
 			local inputBox = Instance.new("TextBox", inputBar)
 			inputBox.BackgroundColor3 = ThemeInputBg
 			inputBox.BorderSizePixel = 0
 			inputBox.Font = Enum.Font.Gotham
-			inputBox.TextSize = 14
+			inputBox.TextSize = S(14)
 			inputBox.TextColor3 = ThemeText
-			inputBox.PlaceholderText = "Ask about the workspace, scripts, properties…"
+			inputBox.PlaceholderText = "Ask about the workspace, scripts, properties鈥�"
 			inputBox.PlaceholderColor3 = Color3.fromRGB(110,110,120)
 			inputBox.TextXAlignment = Enum.TextXAlignment.Left
 			inputBox.TextYAlignment = Enum.TextYAlignment.Center
 			inputBox.ClearTextOnFocus = false
 			inputBox.MultiLine = false
-			inputBox.Position = UDim2.new(0,10,0,10)
-			inputBox.Size = UDim2.new(1,-90,0,28)
+			inputBox.Position = UDim2.new(0,S(10),0,S(10))
+			inputBox.Size = UDim2.new(1,-S(90),0,S(28))
 			inputBox.Text = ""
-			local ibCorner = Instance.new("UICorner", inputBox)
-			ibCorner.CornerRadius = UDim.new(0,8)
+			applyGlass(inputBox, S(8), 0.9)
 			local ibPad = Instance.new("UIPadding", inputBox)
-			ibPad.PaddingLeft = UDim.new(0,10)
-			ibPad.PaddingRight = UDim.new(0,10)
+			ibPad.PaddingLeft = UDim.new(0,S(10))
+			ibPad.PaddingRight = UDim.new(0,S(10))
 			AI.InputBox = inputBox
 
 			local sendBtn = Instance.new("TextButton", inputBar)
 			sendBtn.BackgroundColor3 = ThemeAccent
 			sendBtn.BorderSizePixel = 0
-			sendBtn.Font = Enum.Font.GothamBold
-			sendBtn.TextSize = 13
-			sendBtn.TextColor3 = Color3.new(1,1,1)
-			sendBtn.Text = "Send"
+			sendBtn.Text = ""
 			sendBtn.AutoButtonColor = false
-			sendBtn.Position = UDim2.new(1,-74,0,10)
-			sendBtn.Size = UDim2.new(0,64,0,28)
-			local sbCorner = Instance.new("UICorner", sendBtn)
-			sbCorner.CornerRadius = UDim.new(0,8)
+			sendBtn.Position = UDim2.new(1,-S(74),0,S(10))
+			sendBtn.Size = UDim2.new(0,S(64),0,S(28))
+			applyGlass(sendBtn, S(8), 0.75)
+			bindTouchFeedback(sendBtn, ThemeAccent, Color3.fromRGB(8,105,204))
+
+			local sendIcon = Instance.new("ImageLabel", sendBtn)
+			sendIcon.BackgroundTransparency = 1
+			sendIcon.AnchorPoint = Vector2.new(0.5,0.5)
+			sendIcon.Position = UDim2.new(0.5,0,0.5,0)
+			sendIcon.Size = UDim2.new(0,S(16),0,S(16))
+			sendIcon.Image = getIcon("send") or ""
+			sendIcon.ImageColor3 = Color3.new(1,1,1)
+
 			sendBtn.MouseButton1Click:Connect(AI.Send)
 			AI.SendButton = sendBtn
 
@@ -2286,7 +2380,7 @@ Guidelines:
 				if enterPressed then AI.Send() end
 			end)
 
-			addBubble("bot", "Hi — I'm your Dex Copilot. Set your Gemini API key above (once) and ask me anything about this game's DataModel. I can list children, inspect properties, read scripts, get CFrames, and more.")
+			addBubble("bot", "Hi 鈥� I'm your Dex Copilot. Set your Gemini API key above (once) and ask me anything about this game's DataModel. I can list children, inspect properties, read scripts, get CFrames, and more.")
 		end
 
 		return AI
