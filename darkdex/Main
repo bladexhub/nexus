@@ -2495,11 +2495,28 @@ Guidelines:
 		local cptsOnMouseClick = nil
 		Main.CreateApp({Name = "Click part to select", IconMap = Main.LargeIcons, Icon = 6, OnClick = function(callback)
 			if callback then
-				local mouse = Main.Mouse
-				cptsOnMouseClick = mouse.Button1Down:Connect(function()
+				cptsOnMouseClick = service.UserInputService.InputBegan:Connect(function(input, gameProcessed)
+					if gameProcessed then return end
+					if input.UserInputType ~= Enum.UserInputType.Touch and input.UserInputType ~= Enum.UserInputType.MouseButton1 then return end
+
 					pcall(function()
-						local object = mouse.Target
-						if nodes[object] then
+						local screenPos = input.Position
+						local camera = workspace.CurrentCamera
+						if not camera then return end
+
+						local guiObjects = service.UserInputService:GetGuiObjectsAtPosition(screenPos.X, screenPos.Y)
+						if #guiObjects > 0 then return end
+
+						local unitRay = camera:ViewportPointToRay(screenPos.X, screenPos.Y)
+						local raycastParams = RaycastParams.new()
+						raycastParams.FilterType = Enum.RaycastFilterType.Exclude
+						raycastParams.FilterDescendantsInstances = plr.Character and {plr.Character} or {}
+						raycastParams.IgnoreWater = false
+
+						local result = workspace:Raycast(unitRay.Origin, unitRay.Direction * 5000, raycastParams)
+						local object = result and result.Instance
+
+						if object and nodes[object] then
 							selection:Set(nodes[object])
 							Explorer.ViewNode(nodes[object])
 						end
