@@ -1,0 +1,129 @@
+local Icons = {
+
+    ["window-minimize"]         = "rbxassetid://5034768003",
+    ["window-minimize-hover"]   = "rbxassetid://5060023708",
+    ["window-minimize-active"]  = "rbxassetid://5448127505",
+    ["window-shadow"]           = "rbxassetid://2764171053",
+    ["window-outline"]          = "rbxassetid://1427967925",
+
+    ["settings"]                = "rbxassetid://6578871732",
+    ["info"]                    = "rbxassetid://6578933307",
+
+    ["search"]                  = "rbxassetid://5034718129",
+    ["search-alt"]              = "rbxassetid://5034718180",
+    ["drag-handle"]             = "rbxassetid://5054663650",
+    ["small-icon"]              = "rbxassetid://5642310344",
+
+    ["checkbox"]                = "rbxassetid://6234266378",
+    ["checkmark-blue"]          = "rbxassetid://6401617475",
+    ["checkbox-middle"]         = "rbxassetid://6425281788",
+
+    ["color-space"]             = "rbxassetid://1072518406",
+    ["color-strip"]             = "rbxassetid://1072518502",
+    ["hex-pattern"]             = "rbxassetid://1281023007",
+
+    ["click-sound"]             = "rbxassetid://175964948",
+
+}
+
+local SpriteMaps = {
+
+    MiscIcons = {
+        AssetId   = "rbxassetid://6511490623",
+        SheetW    = 256,
+        SheetH    = 256,
+        IconW     = 16,
+        IconH     = 16,
+
+        Keys = {
+            Reference               = 0,
+            Cut                     = 1,
+            Cut_Disabled            = 2,
+            Copy                    = 3,
+            Copy_Disabled           = 4,
+            Paste                   = 5,
+            Paste_Disabled          = 6,
+            Delete                  = 7,
+            Delete_Disabled         = 8,
+            Group                   = 9,
+            Group_Disabled          = 10,
+            Ungroup                 = 11,
+            Ungroup_Disabled        = 12,
+            TeleportTo              = 13,
+            Rename                  = 14,
+            JumpToParent            = 15,
+            ExploreData             = 16,
+            Save                    = 17,
+            CallFunction            = 18,
+            CallRemote              = 19,
+            Undo                    = 20,
+            Undo_Disabled           = 21,
+            Redo                    = 22,
+            Redo_Disabled           = 23,
+            Expand_Over             = 24,
+            Expand                  = 25,
+            Collapse_Over           = 26,
+            Collapse                = 27,
+            SelectChildren          = 28,
+            SelectChildren_Disabled = 29,
+            InsertObject            = 30,
+            ViewScript              = 31,
+            AddStar                 = 32,
+            RemoveStar              = 33,
+            Script_Disabled         = 34,
+            LocalScript_Disabled    = 35,
+            Play                    = 36,
+            Pause                   = 37,
+            Rename_Disabled         = 38,
+            Empty                   = 1000,
+        }
+    },
+
+    LargeIcons = {
+        AssetId   = "rbxassetid://6579106223",
+        SheetW    = 256,
+        SheetH    = 256,
+        IconW     = 32,
+        IconH     = 32,
+        Keys = {
+            Explorer      = 0,
+            Properties    = 1,
+            Script_Viewer = 2,
+            Watcher       = 3,
+            Output        = 4,
+        }
+    },
+
+    ClassIcons = {
+        AssetId   = "rbxassetid://5642383285",
+        IconW     = 16,
+        IconH     = 16,
+
+    },
+}
+
+local function DisplaySprite(imageLabel, map, index)
+    local cols = math.floor(map.SheetW / map.IconW)
+    imageLabel.Image           = map.AssetId
+    imageLabel.ImageRectSize   = Vector2.new(map.IconW, map.IconH)
+    imageLabel.ImageRectOffset = Vector2.new(
+        map.IconW  * (index % cols),
+        map.IconH  * math.floor(index / cols)
+    )
+end
+
+local function DisplayByKey(imageLabel, map, key)
+    local index = map.Keys[key]
+    if index then
+        DisplaySprite(imageLabel, map, index)
+    else
+        warn("[DarkDexIcons] Key no encontrado: " .. tostring(key))
+    end
+end
+
+return {
+    Icons        = Icons,
+    SpriteMaps   = SpriteMaps,
+    DisplaySprite = DisplaySprite,
+    DisplayByKey  = DisplayByKey,
+}
