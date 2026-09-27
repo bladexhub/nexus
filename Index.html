@@ -1,0 +1,1358 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#000000">
+<meta name="color-scheme" content="dark">
+<title>BLADEX ORBS</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  color-scheme:dark;
+  --bg:#000;--fill:rgba(255,255,255,.035);--fill-2:rgba(255,255,255,.065);--fill-3:rgba(255,255,255,.1);
+  --line:rgba(255,255,255,.09);--line-2:rgba(255,255,255,.16);--line-3:rgba(255,255,255,.28);
+  --ink:#fafafa;--ink-2:#a3a3a3;--ink-3:#6e6e6e;--pop:#0c0c0c;
+  --ok:#3ecf8e;--ok-bg:rgba(62,207,142,.1);
+  --warn:#f5a623;--warn-bg:rgba(245,166,35,.1);
+  --err:#ff5c5c;--err-bg:rgba(255,92,92,.1);
+  --info:#6ab0ff;--info-bg:rgba(106,176,255,.1);
+  --purple:#a78bfa;--purple-bg:rgba(167,139,250,.1);
+  --r-lg:18px;--r-md:12px;--ease:cubic-bezier(.22,1,.36,1);
+  --sans:"Hanken Grotesk",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+  --mono:"JetBrains Mono",ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+}
+*,*::before,*::after{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%;background:#000}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:15px;line-height:1.5;-webkit-font-smoothing:antialiased;-webkit-tap-highlight-color:transparent;min-height:100vh;min-height:100dvh;overflow-x:hidden}
+[hidden]{display:none!important}
+button,input,textarea,select{font:inherit;color:inherit}
+button{cursor:pointer;background:none;border:0;padding:0;touch-action:manipulation}
+b{font-weight:600}
+.sprite{position:absolute;width:0;height:0;overflow:hidden}
+.ic{width:18px;height:18px;flex:none;fill:none;stroke:currentColor;stroke-width:1.75;stroke-linecap:round;stroke-linejoin:round}
+:focus-visible{outline:2px solid #fff;outline-offset:2px;border-radius:6px}
+::selection{background:rgba(255,255,255,.28)}
+*{scrollbar-width:thin;scrollbar-color:rgba(255,255,255,.18) transparent}
+
+.app{width:100%;max-width:880px;margin:0 auto;padding:max(18px,env(safe-area-inset-top)) max(16px,env(safe-area-inset-right)) max(28px,env(safe-area-inset-bottom)) max(16px,env(safe-area-inset-left))}
+.top{animation:rise .8s var(--ease) both;display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:18px}
+.brand{display:flex;align-items:center;gap:12px;min-width:0}
+.logo{width:40px;height:40px;border-radius:12px;border:1px solid var(--line-2);background:linear-gradient(135deg,var(--purple-bg),var(--fill));display:grid;place-items:center;flex:none;color:var(--purple)}
+.logo .ic{width:20px;height:20px}
+.brand h1{font-size:17px;font-weight:650;letter-spacing:-.01em;margin:0;line-height:1.2}
+.brand p{margin:2px 0 0;font-size:12.5px;color:var(--ink-2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.chip{display:inline-flex;align-items:center;gap:8px;height:38px;padding:0 12px;border-radius:999px;border:1px solid var(--line-2);background:var(--fill);font-size:13.5px;font-weight:550;max-width:190px;transition:background .2s,border-color .2s,transform .25s var(--ease)}
+.chip:hover{background:var(--fill-2);border-color:var(--line-3)}
+.chip:active{transform:scale(.97)}
+.chip .dot{width:8px;height:8px;border-radius:50%;background:var(--ink-3);flex:none;transition:background .3s,box-shadow .3s}
+.chip.connected .dot{background:var(--ok);box-shadow:0 0 0 3px var(--ok-bg)}
+.chip.error .dot{background:var(--err);box-shadow:0 0 0 3px var(--err-bg)}
+.chip.loading .dot{background:var(--warn);animation:blink 1s ease-in-out infinite}
+.chip-label{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.chip .ic{width:16px;height:16px;color:var(--ink-2);transition:transform .6s var(--ease),color .2s}
+.chip:hover .ic{transform:rotate(70deg);color:var(--ink)}
+
+.surface{border:1px solid var(--line);border-radius:var(--r-lg);background:var(--fill);animation:rise .8s var(--ease) .1s both}
+.panel{padding:16px}
+@media(min-width:640px){.panel{padding:22px}}
+
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;height:42px;padding:0 16px;border-radius:11px;border:1px solid var(--line-2);background:var(--fill-2);font-weight:600;font-size:14px;white-space:nowrap;transition:background .2s,border-color .2s,transform .25s var(--ease),opacity .2s,color .2s}
+.btn:hover:not(:disabled){background:var(--fill-3);border-color:var(--line-3)}
+.btn:active:not(:disabled){transform:scale(.97)}
+.btn:disabled{opacity:.38;cursor:not-allowed}
+.btn .ic{width:17px;height:17px;transition:transform .25s var(--ease)}
+.btn.primary{background:#fff;color:#000;border-color:#fff}
+.btn.primary:hover:not(:disabled){background:#e4e4e4;border-color:#e4e4e4}
+.btn.ghost{background:transparent;border-color:transparent;color:var(--ink-2)}
+.btn.ghost:hover:not(:disabled){background:var(--fill-2);color:var(--ink);border-color:transparent}
+.btn.danger{color:var(--err);border-color:rgba(255,92,92,.35);background:var(--err-bg)}
+.btn.danger:hover:not(:disabled){background:rgba(255,92,92,.18);border-color:rgba(255,92,92,.55)}
+.btn.gift{color:#000;background:linear-gradient(135deg,#fbbf24,#f59e0b);border-color:#f59e0b;font-weight:700}
+.btn.gift:hover:not(:disabled){background:linear-gradient(135deg,#fcd34d,#fbbf24)}
+.btn.sm{height:34px;padding:0 12px;font-size:13px;border-radius:9px}
+.btn.lg{height:46px;padding:0 20px;font-size:15px}
+.icon-btn{width:34px;height:34px;display:grid;place-items:center;border-radius:9px;color:var(--ink-2);transition:background .2s,color .2s,transform .25s var(--ease)}
+.icon-btn:hover:not(:disabled){background:var(--fill-3);color:var(--ink)}
+.icon-btn:active:not(:disabled){transform:scale(.92)}
+.row{display:flex;flex-wrap:wrap;gap:10px;margin-top:12px}
+.row.main{margin-top:16px}
+.row.main .btn.primary{flex:1 1 220px}
+
+.field{display:flex;flex-direction:column;gap:6px;min-width:0}
+.field>label{font-size:12.5px;color:var(--ink-2);font-weight:500}
+.hint{color:var(--ink-3);font-weight:400}
+.input-wrap{position:relative;display:flex;align-items:center}
+.input-wrap input,.area,.select{width:100%;height:42px;padding:0 12px;border-radius:11px;border:1px solid var(--line-2);background:rgba(255,255,255,.03);font-size:14.5px;outline:none;transition:border-color .2s,background .2s,box-shadow .2s}
+.input-wrap.has-lead input{padding-left:38px}
+.input-wrap.has-trail input{padding-right:42px}
+.input-wrap input:focus,.area:focus,.select:focus{border-color:rgba(255,255,255,.7);background:rgba(255,255,255,.05);box-shadow:0 0 0 3px rgba(255,255,255,.08)}
+.input-wrap input::placeholder,.area::placeholder{color:var(--ink-3)}
+.select{appearance:none;color:var(--ink);background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23a3a3a3' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 12px center;padding-right:36px;cursor:pointer}
+.select:hover{border-color:var(--line-3)}
+.lead-icon{position:absolute;left:12px;display:grid;color:var(--ink-3);pointer-events:none;transition:color .2s}
+.lead-icon .ic{width:16px;height:16px}
+.input-wrap:focus-within .lead-icon{color:var(--ink)}
+.trail-btn{position:absolute;right:4px;width:34px;height:34px;display:grid;place-items:center;border-radius:8px;color:var(--ink-2);transition:background .2s,color .2s}
+.trail-btn:hover:not(:disabled){background:var(--fill-3);color:var(--ink)}
+.trail-btn .ic{width:16px;height:16px}
+
+.check{position:relative;display:flex;align-items:center;gap:10px;padding:9px 6px;border-radius:10px;cursor:pointer;font-size:14px;color:var(--ink-2);user-select:none;transition:color .2s}
+.check:hover{color:var(--ink)}
+.check input{position:absolute;opacity:0;pointer-events:none}
+.box{width:20px;height:20px;border-radius:6px;border:1px solid var(--line-3);display:grid;place-items:center;flex:none;transition:background .2s,border-color .2s,transform .25s var(--ease)}
+.box .ic{width:14px;height:14px;stroke-width:3;stroke:#000;stroke-dasharray:24;stroke-dashoffset:24;transition:stroke-dashoffset .3s var(--ease) .05s}
+input:checked+.box{background:#fff;border-color:#fff}
+input:checked+.box .ic{stroke-dashoffset:0}
+.check input:checked~.check-text{color:var(--ink)}
+
+.console{margin-top:14px;border:1px solid var(--line);border-radius:var(--r-md);background:var(--fill)}
+.acc-head{display:flex;align-items:center;gap:10px;width:100%;padding:0 14px;height:46px;font-weight:600;font-size:14px;text-align:left}
+.acc-head>.ic:first-child{color:var(--ink-2)}
+.acc-head .chev{margin-left:auto;transition:transform .45s var(--ease);color:var(--ink-2)}
+.acc.open>.acc-head .chev{transform:rotate(180deg)}
+.acc-body{display:grid;grid-template-rows:0fr;visibility:hidden;transition:grid-template-rows .45s var(--ease),visibility 0s .45s}
+.acc.open>.acc-body{grid-template-rows:1fr;visibility:visible;transition-delay:0s}
+.acc-inner{min-height:0;overflow:hidden}
+
+.stats-row{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-top:14px}
+.stat-card{padding:12px;border:1px solid var(--line);border-radius:12px;background:var(--fill-2);text-align:center;position:relative;overflow:hidden}
+.stat-card.pending-glow{border-color:rgba(251,191,36,.4);background:linear-gradient(180deg,rgba(251,191,36,.08),var(--fill-2))}
+.stat-label{font-size:10.5px;color:var(--ink-3);letter-spacing:.08em;font-weight:700;text-transform:uppercase;margin-bottom:6px}
+.stat-value{font-size:20px;font-weight:700;font-family:var(--mono);font-variant-numeric:tabular-nums;color:var(--ink)}
+.stat-value.ok{color:var(--ok)}
+.stat-value.warn{color:var(--warn)}
+.stat-value.gift{color:#fbbf24}
+
+.alert-banner{display:flex;align-items:center;gap:10px;padding:12px 14px;border-radius:12px;background:linear-gradient(135deg,rgba(251,191,36,.12),rgba(245,158,11,.06));border:1px solid rgba(251,191,36,.35);margin-top:14px;animation:pop .5s var(--ease)}
+.alert-banner .ic{width:20px;height:20px;color:#fbbf24;flex:none}
+.alert-banner-text{flex:1;font-size:13.5px;color:#fbbf24;font-weight:600}
+.alert-banner-text small{display:block;color:var(--ink-2);font-weight:400;font-size:11.5px;margin-top:2px}
+
+.origin-warn{display:flex;gap:10px;padding:12px 14px;border-radius:12px;background:var(--err-bg);border:1px solid rgba(255,92,92,.4);margin-bottom:14px;font-size:13px;color:#fff}
+.origin-warn .ic{width:20px;height:20px;color:var(--err);flex:none;margin-top:1px}
+.origin-warn b{color:var(--err)}
+.origin-warn code{background:rgba(0,0,0,.4);padding:1px 5px;border-radius:4px;font-family:var(--mono);font-size:11.5px}
+
+.list{border:1px solid var(--line);border-radius:14px;background:rgba(0,0,0,.45);max-height:460px;overflow-y:auto;overscroll-behavior:contain;margin-top:14px;scroll-behavior:smooth}
+.list-bar{position:sticky;top:0;z-index:2;display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap;padding:8px 8px 8px 14px;background:rgba(10,10,10,.92);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);border-bottom:1px solid var(--line);font-size:13px;color:var(--ink-2)}
+.list-bar .stats{display:flex;align-items:center;gap:6px 14px;flex-wrap:wrap}
+.list-bar .stats span{display:inline-flex;align-items:center;gap:6px}
+.list-bar .ic{width:14px;height:14px}
+.list-bar b{color:var(--ink);font-variant-numeric:tabular-nums}
+
+.priority-legend{display:flex;gap:8px;flex-wrap:wrap;padding:8px 12px;background:rgba(255,255,255,.02);border-bottom:1px solid var(--line);font-size:11px;color:var(--ink-3);font-family:var(--mono)}
+.priority-legend span{display:inline-flex;align-items:center;gap:4px}
+.priority-legend .dot{width:6px;height:6px;border-radius:50%}
+.priority-legend .dot.p1{background:#6ab0ff}
+.priority-legend .dot.p2{background:#3ecf8e}
+.priority-legend .dot.p3{background:#a78bfa}
+.priority-legend .dot.p4{background:#6e6e6e}
+
+.quest{display:grid;grid-template-columns:40px minmax(0,1fr) auto;align-items:center;gap:12px;padding:12px;border-bottom:1px solid var(--line);position:relative;transition:background .2s}
+.quest:last-child{border-bottom:0}
+.quest:hover{background:var(--fill)}
+.quest.claimable{background:linear-gradient(90deg,rgba(251,191,36,.06),transparent)}
+.quest.skipped{opacity:.4}
+.quest-icon{width:40px;height:40px;border-radius:11px;display:grid;place-items:center;flex:none;border:1px solid var(--line-2);background:var(--fill-2);position:relative}
+.quest-icon .ic{width:19px;height:19px}
+.quest[data-type^="WATCH"] .quest-icon{color:var(--info);border-color:rgba(106,176,255,.35);background:rgba(106,176,255,.08)}
+.quest[data-type^="PLAY"] .quest-icon{color:var(--ok);border-color:rgba(62,207,142,.35);background:rgba(62,207,142,.08)}
+.quest.claimable .quest-icon{color:#fbbf24;border-color:rgba(251,191,36,.4);background:rgba(251,191,36,.1)}
+.quest-priority{position:absolute;top:-4px;right:-4px;width:14px;height:14px;border-radius:50%;border:2px solid #000;font-size:8px;font-weight:700;display:grid;place-items:center;color:#000}
+.quest-priority.p1{background:#6ab0ff}
+.quest-priority.p2{background:#3ecf8e}
+.quest-priority.p3{background:#a78bfa}
+.quest-priority.p4{background:#6e6e6e;color:#fff}
+.quest-info{min-width:0}
+.quest-name{font-size:14px;font-weight:550;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.quest-meta{font-size:11.5px;color:var(--ink-3);font-family:var(--mono);display:flex;gap:10px;flex-wrap:wrap;margin-top:2px}
+.quest-meta .duration{color:#fbbf24;font-weight:600}
+.quest-reward{font-size:12.5px;color:#fbbf24;font-family:var(--mono);font-weight:700;white-space:nowrap;display:inline-flex;align-items:center;gap:4px}
+.quest-reward .ic{width:13px;height:13px}
+.quest-reward.free{color:#3ecf8e}
+.quest-st{min-width:100px;text-align:right;font-size:12px;color:var(--ink-3);font-family:var(--mono);font-weight:600}
+.quest-st.pending{color:var(--ink-3)}
+.quest-st.claimable{color:#fbbf24;animation:blink 1.6s ease-in-out infinite}
+.quest-st.running{color:var(--warn)}
+.quest-st.done{color:var(--ok)}
+.quest-st.error{color:var(--ink-3)}
+.quest-st.retry{color:var(--warn)}
+.quest-st.claimed{color:var(--info)}
+.quest-btn{margin-top:6px;width:100%;display:flex;justify-content:flex-end;grid-column:2/-1}
+
+.progress{display:flex;flex-direction:column;gap:8px;margin-top:14px;padding:12px;border:1px solid var(--line);border-radius:12px;background:rgba(255,255,255,.02)}
+.progress-row{display:flex;align-items:center;gap:10px}
+.progress-text{font-family:var(--mono);font-size:12px;color:var(--ink-2);flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.progress-bar{flex:1;height:6px;border-radius:3px;background:var(--line-2);overflow:hidden;position:relative}
+.progress-fill{height:100%;width:0;background:linear-gradient(90deg,#fbbf24,#f59e0b);border-radius:3px;transition:width .35s var(--ease)}
+.progress-pct{font-family:var(--mono);font-size:12px;color:var(--ink-2);min-width:44px;text-align:right;font-variant-numeric:tabular-nums}
+.progress-times{display:flex;gap:14px;font-family:var(--mono);font-size:11.5px;color:var(--ink-3);flex-wrap:wrap;padding-left:2px}
+.progress-times span{display:inline-flex;align-items:center;gap:4px}
+.progress-times .ic{width:12px;height:12px}
+.progress-times .elapsed{color:var(--info)}
+.progress-times .remaining{color:#fbbf24;font-weight:600}
+
+#log{max-height:260px;overflow:auto;padding:12px 14px;font-family:var(--mono);font-size:12px;line-height:1.7;border:1px solid var(--line);border-radius:12px;background:rgba(0,0,0,.5);margin-top:14px;scroll-behavior:smooth;overscroll-behavior:contain}
+#log:empty::before{content:"Sin actividad";color:var(--ink-3)}
+.log-line{display:flex;gap:10px;align-items:flex-start;animation:logIn .35s var(--ease)}
+.log-time{color:var(--ink-3);flex:none;font-variant-numeric:tabular-nums}
+.log-msg{word-break:break-word;white-space:pre-wrap;color:var(--ink-2)}
+.log-ok .log-msg{color:var(--ok)}
+.log-err .log-msg{color:var(--err)}
+.log-warn .log-msg{color:var(--warn)}
+.log-info .log-msg{color:var(--info)}
+.log-claim .log-msg{color:#fbbf24;font-weight:600}
+
+.backdrop{position:fixed;inset:0;z-index:60;background:rgba(0,0,0,.76);opacity:0;pointer-events:none;transition:opacity .24s}
+.backdrop.open{opacity:1;pointer-events:auto}
+.drawer{position:fixed;top:0;right:0;bottom:0;z-index:70;width:min(460px,100%);background:#000;border-left:1px solid var(--line-2);display:flex;flex-direction:column;transform:translate3d(102%,0,0);visibility:hidden;transition:transform .3s var(--ease),visibility 0s .3s;outline:none}
+.drawer.open{transform:translate3d(0,0,0);visibility:visible;transition-delay:0s}
+@media(max-width:480px){.drawer{border-left:0}}
+.drawer-head{display:flex;align-items:center;justify-content:space-between;padding:calc(14px + env(safe-area-inset-top)) 14px 14px 20px;border-bottom:1px solid var(--line)}
+.drawer-head h2{display:flex;align-items:center;gap:10px;margin:0;font-size:16px;font-weight:650}
+.drawer-body{flex:1;overflow-y:auto;padding:0 20px calc(28px + env(safe-area-inset-bottom));overscroll-behavior:contain;scroll-behavior:smooth}
+.section{padding:18px 0;border-bottom:1px solid var(--line)}
+.section-title{display:flex;align-items:center;gap:9px;font-weight:600;font-size:14.5px;margin-bottom:14px}
+.section-title .ic{width:17px;height:17px;color:var(--ink-2)}
+.note{display:flex;gap:9px;margin-top:12px;font-size:12.5px;color:var(--ink-2)}
+.note .ic{width:15px;height:15px;margin-top:2px;color:var(--ink-3)}
+.note.warn .ic,.note.warn{color:var(--warn)}
+
+.toasts{position:fixed;left:50%;bottom:calc(16px + env(safe-area-inset-bottom));transform:translateX(-50%);z-index:100;display:flex;flex-direction:column;gap:8px;width:min(420px,calc(100% - 32px));pointer-events:none;max-height:40vh;overflow:hidden}
+.toast{display:flex;align-items:center;gap:10px;padding:12px 14px;border-radius:13px;border:1px solid var(--line-3);background:var(--pop);font-size:13.5px;box-shadow:0 12px 40px rgba(0,0,0,.7);opacity:0;transform:translateY(12px) scale(.98);transition:opacity .3s,transform .5s var(--ease)}
+.toast.show{opacity:1;transform:none}
+.toast .ic{width:17px;height:17px}
+.toast.ok .ic{color:var(--ok)}.toast.err .ic{color:var(--err)}.toast.warn .ic{color:var(--warn)}.toast.info .ic{color:var(--info)}
+.toast.gift{border-color:rgba(251,191,36,.4)}
+.toast.gift .ic{color:#fbbf24}
+
+@keyframes rise{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+@keyframes logIn{from{opacity:0;transform:translateX(-6px)}to{opacity:1;transform:none}}
+@keyframes blink{50%{opacity:.5}}
+@keyframes pop{from{opacity:0;transform:scale(.96) translateY(4px)}to{opacity:1;transform:none}}
+@media(prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.001ms!important;animation-iteration-count:1!important;transition-duration:.001ms!important;transition-delay:0s!important;scroll-behavior:auto!important}}
+
+@media(max-width:520px){
+  .stats-row{grid-template-columns:1fr 1fr;gap:8px}
+  .stat-card{padding:10px}
+  .stat-value{font-size:17px}
+  .quest{grid-template-columns:36px minmax(0,1fr);gap:10px}
+  .quest-st{grid-column:2;text-align:left;min-width:0;margin-top:2px}
+  .quest-btn{grid-column:2;justify-content:flex-start}
+}
+</style>
+</head>
+<body>
+
+<svg class="sprite" aria-hidden="true" focusable="false">
+  <symbol id="i-x" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></symbol>
+  <symbol id="i-check" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></symbol>
+  <symbol id="i-alert" viewBox="0 0 24 24"><path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></symbol>
+  <symbol id="i-info" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></symbol>
+  <symbol id="i-lock" viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></symbol>
+  <symbol id="i-eye" viewBox="0 0 24 24"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12Z"/><circle cx="12" cy="12" r="3"/></symbol>
+  <symbol id="i-eye-off" viewBox="0 0 24 24"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></symbol>
+  <symbol id="i-chevron" viewBox="0 0 24 24"><path d="m6 9 6 6 6-6"/></symbol>
+  <symbol id="i-gear" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1Z"/></symbol>
+  <symbol id="i-filter" viewBox="0 0 24 24"><path d="M22 3H2l8 9.46V19l4 2v-8.54L22 3z"/></symbol>
+  <symbol id="i-trash" viewBox="0 0 24 24"><path d="M3 6h18M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2m3 0v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/><line x1="10" y1="11" x2="10" y2="17"/><line x1="14" y1="11" x2="14" y2="17"/></symbol>
+  <symbol id="i-play" viewBox="0 0 24 24"><polygon points="5 3 19 12 5 21 5 3"/></symbol>
+  <symbol id="i-video" viewBox="0 0 24 24"><path d="m22 8-6 4 6 4V8Z"/><rect x="2" y="6" width="14" height="12" rx="2"/></symbol>
+  <symbol id="i-gamepad" viewBox="0 0 24 24"><line x1="6" y1="12" x2="10" y2="12"/><line x1="8" y1="10" x2="8" y2="14"/><line x1="15" y1="13" x2="15.01" y2="13"/><line x1="18" y1="11" x2="18.01" y2="11"/><rect x="2" y="6" width="20" height="12" rx="6"/></symbol>
+  <symbol id="i-stop" viewBox="0 0 24 24"><rect x="6" y="6" width="12" height="12" rx="2"/></symbol>
+  <symbol id="i-refresh" viewBox="0 0 24 24"><path d="M21 12a9 9 0 1 1-3-6.7"/><path d="M21 3v6h-6"/></symbol>
+  <symbol id="i-gift" viewBox="0 0 24 24"><polyline points="20 12 20 22 4 22 4 12"/><rect x="2" y="7" width="20" height="5"/><line x1="12" y1="22" x2="12" y2="7"/><path d="M12 7H7.5a2.5 2.5 0 0 1 0-5C11 2 12 7 12 7z"/><path d="M12 7h4.5a2.5 2.5 0 0 0 0-5C13 2 12 7 12 7z"/></symbol>
+  <symbol id="i-trophy" viewBox="0 0 24 24"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/><path d="M4 22h16"/><path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"/><path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"/><path d="M18 2H6v7a6 6 0 0 0 12 0V2Z"/></symbol>
+  <symbol id="i-coins" viewBox="0 0 24 24"><circle cx="8" cy="8" r="6"/><path d="M18.09 10.37A6 6 0 1 1 10.34 18"/><path d="M7 6h1v4"/><path d="m16.71 13.88.7.71-2.82 2.82"/></symbol>
+  <symbol id="i-sparkle" viewBox="0 0 24 24"><path d="M9.937 15.5A2 2 0 0 0 8.5 14.063l-6.135-1.582a.5.5 0 0 1 0-.962L8.5 9.936A2 2 0 0 0 9.937 8.5l1.582-6.135a.5.5 0 0 1 .963 0L14.063 8.5A2 2 0 0 0 15.5 9.937l6.135 1.581a.5.5 0 0 1 0 .964L15.5 14.063a2 2 0 0 0-1.437 1.437l-1.582 6.135a.5.5 0 0 1-.963 0z"/></symbol>
+  <symbol id="i-clock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></symbol>
+  <symbol id="i-user" viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></symbol>
+</svg>
+
+<div class="app">
+  <header class="top">
+    <div class="brand">
+      <span class="logo"><svg class="ic"><use href="#i-sparkle"/></svg></span>
+      <div>
+        <h1>BLADEX ORBS</h1>
+        <p>Farm de misiones Discord</p>
+      </div>
+    </div>
+    <button class="chip" id="userChip" type="button" aria-label="Abrir ajustes" aria-controls="settingsDrawer">
+      <span class="dot"></span>
+      <span class="chip-label" id="userLabel">Conectar</span>
+      <svg class="ic"><use href="#i-gear"/></svg>
+    </button>
+  </header>
+
+  <main class="surface">
+    <section class="panel">
+
+      <div class="origin-warn" id="originWarn" hidden>
+        <svg class="ic"><use href="#i-alert"/></svg>
+        <div>
+          <b>Estás abriendo el archivo desde <code id="originVal">file://</code></b><br>
+          Discord bloquea peticiones desde <code>content://</code> y <code>file://</code>. Necesitas abrirlo desde una URL <b>https://</b> real (GitHub Pages, Netlify, Vercel…).
+        </div>
+      </div>
+
+      <div class="stats-row">
+        <div class="stat-card">
+          <div class="stat-label">Cuenta</div>
+          <div class="stat-value" id="statUser">—</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Orbs</div>
+          <div class="stat-value ok" id="statOrbs">—</div>
+        </div>
+        <div class="stat-card" id="statQuestsCard">
+          <div class="stat-label">Misiones</div>
+          <div class="stat-value" id="statQuests">—</div>
+        </div>
+      </div>
+
+      <div class="alert-banner" id="claimBanner" hidden>
+        <svg class="ic"><use href="#i-gift"/></svg>
+        <div class="alert-banner-text">
+          <span id="claimBannerText">Recompensas sin canjear detectadas</span>
+          <small id="claimBannerHint">Pulsa "Canjear todo". Si falla, ábrelas en Discord y se quitarán solas al refrescar.</small>
+        </div>
+        <button class="btn gift sm" id="claimAllBtn" type="button">
+          <svg class="ic"><use href="#i-gift"/></svg>Canjear todo
+        </button>
+      </div>
+
+      <div class="progress" id="progressBox" hidden>
+        <div class="progress-row">
+          <span class="progress-text" id="progressText">Listo</span>
+          <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
+          <span class="progress-pct" id="progressPct">0%</span>
+        </div>
+        <div class="progress-times">
+          <span class="elapsed"><svg class="ic"><use href="#i-clock"/></svg>Transcurrido: <span id="elapsedText">0:00</span></span>
+          <span class="remaining"><svg class="ic"><use href="#i-clock"/></svg>Restante: <span id="remainingText">—</span></span>
+        </div>
+      </div>
+
+      <div class="list" id="questList" hidden>
+        <div class="list-bar">
+          <span class="stats">
+            <span><svg class="ic"><use href="#i-trophy"/></svg>Misiones: <b id="questCount">0</b></span>
+            <span id="claimCountWrap" hidden><svg class="ic"><use href="#i-gift"/></svg>Canjeables: <b id="claimCount">0</b></span>
+          </span>
+          <button class="btn sm ghost" id="refreshQuests" type="button"><svg class="ic"><use href="#i-refresh"/></svg>Actualizar</button>
+        </div>
+        <div class="priority-legend">
+          <span><span class="dot p1"></span>Vídeos cortos</span>
+          <span><span class="dot p2"></span>Vídeos largos</span>
+          <span><span class="dot p3"></span>Items gratis</span>
+          <span><span class="dot p4"></span>Juegos</span>
+        </div>
+        <div id="questItems"></div>
+      </div>
+
+      <div class="row main">
+        <button class="btn primary lg" id="startBtn" disabled><svg class="ic"><use href="#i-play"/></svg><span>Iniciar farm</span></button>
+        <button class="btn danger lg" id="stopBtn" hidden><svg class="ic"><use href="#i-stop"/></svg><span>Detener</span></button>
+      </div>
+
+      <div id="log"></div>
+
+      <section class="console acc" id="accOptions">
+        <button class="acc-head" type="button" aria-expanded="false" aria-controls="accOptionsBody">
+          <svg class="ic"><use href="#i-filter"/></svg>
+          <span>Opciones de farm</span>
+          <svg class="ic chev"><use href="#i-chevron"/></svg>
+        </button>
+        <div class="acc-body" id="accOptionsBody"><div class="acc-inner" style="padding:0 14px 14px">
+          <label class="check"><input type="checkbox" id="skipGames" checked><span class="box"><svg class="ic"><use href="#i-check"/></svg></span><span class="check-text">Omitir misiones de juego (PLAY_*)</span></label>
+          <label class="check"><input type="checkbox" id="hideGamesList"><span class="box"><svg class="ic"><use href="#i-check"/></svg></span><span class="check-text">Ocultar juegos también en la lista</span></label>
+          <label class="check"><input type="checkbox" id="autoClaim" checked><span class="box"><svg class="ic"><use href="#i-check"/></svg></span><span class="check-text">Intento de canje automático al completar</span></label>
+          <label class="check"><input type="checkbox" id="autoClaimOnLoad" checked><span class="box"><svg class="ic"><use href="#i-check"/></svg></span><span class="check-text">Canjear pendientes al conectar</span></label>
+          <label class="check"><input type="checkbox" id="autoRefresh" checked><span class="box"><svg class="ic"><use href="#i-check"/></svg></span><span class="check-text">Auto-actualizar lista cada 25s</span></label>
+          <label class="check"><input type="checkbox" id="verboseLog" checked><span class="box"><svg class="ic"><use href="#i-check"/></svg></span><span class="check-text">Log detallado</span></label>
+          <div class="field" style="margin-top:12px;padding:0 6px">
+            <label for="videoSpeed">Velocidad de videos (×real)</label>
+            <select class="select" id="videoSpeed">
+              <option value="1">1× — normal (recomendado)</option>
+              <option value="2">2× — rápido</option>
+              <option value="3">3× — muy rápido</option>
+            </select>
+          </div>
+        </div></div>
+      </section>
+
+    </section>
+  </main>
+</div>
+
+<div class="backdrop" id="drawerBackdrop"></div>
+<aside class="drawer" id="settingsDrawer" tabindex="-1" aria-hidden="true" role="dialog" aria-modal="true" aria-labelledby="drawerTitle">
+  <div class="drawer-head">
+    <h2 id="drawerTitle"><svg class="ic"><use href="#i-gear"/></svg>Ajustes</h2>
+    <button class="icon-btn" id="closeSettings" title="Cerrar" aria-label="Cerrar ajustes"><svg class="ic"><use href="#i-x"/></svg></button>
+  </div>
+  <div class="drawer-body">
+    <div class="section">
+      <div class="section-title"><svg class="ic"><use href="#i-lock"/></svg>Cuenta Discord</div>
+      <div class="field">
+        <label for="tokenInput">Token de usuario</label>
+        <div class="input-wrap has-lead has-trail">
+          <span class="lead-icon"><svg class="ic"><use href="#i-lock"/></svg></span>
+          <input type="password" id="tokenInput" placeholder="Pega aquí tu token" autocomplete="off" spellcheck="false" autocapitalize="off">
+          <button class="trail-btn" id="toggleToken" type="button" title="Mostrar u ocultar" aria-label="Mostrar u ocultar token"><svg class="ic"><use href="#i-eye"/></svg></button>
+        </div>
+      </div>
+      <div class="note warn"><svg class="ic"><use href="#i-alert"/></svg><div>El uso de self-bots viola los Términos de Servicio de Discord. Úsalo bajo tu propio riesgo. El token se guarda solo en este navegador (localStorage).</div></div>
+      <div class="row"><button class="btn sm ghost" id="forgetToken"><svg class="ic"><use href="#i-trash"/></svg>Olvidar token</button></div>
+    </div>
+  </div>
+</aside>
+
+<div class="toasts" id="toasts" aria-live="polite"></div>
+
+<script>
+(() => {
+'use strict';
+
+// ═══════════════════════════════════════════════════════════════════════════
+//  DETECCIÓN DE ORIGEN (content:// y file:// no funcionan con Discord)
+// ═══════════════════════════════════════════════════════════════════════════
+const IS_VALID_ORIGIN = !(location.protocol === 'content:' || location.protocol === 'file:' || location.origin === 'null' || location.origin === '');
+
+// ═══════════════════════════════════════════════════════════════════════════
+//  CONFIG
+// ═══════════════════════════════════════════════════════════════════════════
+const API = 'https://discord.com/api/v9';
+const STORE_KEY = 'bladex-orbs-cfg-v10';
+const SUPER_PROPS = 'eyJvcyI6IldpbmRvd3MiLCJicm93c2VyIjoiQ2hyb21lIiwiZGV2aWNlIjoiIiwic3lzdGVtX2xvY2FsZSI6InB0LUJSIiwiaGFzX2NsaWVudF9tb2RzIjpmYWxzZSwiYnJvd3Nlcl91c2VyX2FnZW50IjoiTW96aWxsYS81LjAgKFdpbmRvd3MgTlQgMTAuMDsgV2luNjQ7IHg2NCkgQXBwbGVXZWJLaXQvNTM3LjM2IChLSFRNTCwgbGlrZSBHZWNrbykgQ2hyb21lLzEyMC4wLjAuMCBTYWZhcmkvNTM3LjM2IiwiYnJvd3Nlcl92ZXJzaW9uIjoiMTIwLjAuMC4wIiwib3NfdmVyc2lvbiI6IjEwIiwicmVmZXJyZXIiOiIiLCJyZWZlcnJpbmdfZG9tYWluIjoiIiwicmVsZWFzZV9jaGFubmVsIjoic3RhYmxlIiwiY2xpZW50X2J1aWxkX251bWJlciI6OTk5OTk5LCJjbGllbnRfZXZlbnRfc291cmNlIjpudWxsfQ==';
+const UA = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) discord/1.0.9217 Chrome/138.0.7204.251 Electron/37.6.0 Safari/537.36';
+
+const TASK_TYPES = {
+  'WATCH_VIDEO':           'Vídeo',
+  'WATCH_VIDEO_ON_MOBILE': 'Vídeo móvil',
+  'PLAY_ON_DESKTOP':       'Jugar escritorio',
+  'PLAY_ON_XBOX':          'Jugar Xbox',
+  'PLAY_ON_PLAYSTATION':   'Jugar PlayStation'
+};
+const TASK_PRIORITY = ['PLAY_ON_DESKTOP','PLAY_ON_XBOX','PLAY_ON_PLAYSTATION','WATCH_VIDEO','WATCH_VIDEO_ON_MOBILE'];
+
+const IS_MOBILE = /Android|iPhone|iPad|iPod|Mobile|webOS|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+const AUTO_REFRESH_MS = 25000;
+
+// ═══════════════════════════════════════════════════════════════════════════
+//  UTILIDADES
+// ═══════════════════════════════════════════════════════════════════════════
+const $ = id => document.getElementById(id);
+const escapeHtml = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const debounce = (fn, ms) => { let t; return (...a) => { clearTimeout(t); t = setTimeout(() => fn(...a), ms); }; };
+const sleep = ms => new Promise(r => setTimeout(r, ms));
+const clamp = (n,a,b) => Math.max(a, Math.min(b,n));
+const ic = (n, cls='') => `<svg class="ic${cls?' '+cls:''}" aria-hidden="true"><use href="#i-${n}"/></svg>`;
+const jitter = (base, range=1500) => base + Math.floor(Math.random()*range);
+const formatTime = s => {
+  s = Math.max(0, Math.floor(s));
+  const h = Math.floor(s/3600), m = Math.floor((s%3600)/60), sec = s%60;
+  if (h > 0) return `${h}:${String(m).padStart(2,'0')}:${String(sec).padStart(2,'0')}`;
+  return `${m}:${String(sec).padStart(2,'0')}`;
+};
+const getTaskDuration = t => {
+  t = Math.floor(t || 0);
+  if (t >= 3600) return `${Math.floor(t/3600)}h ${Math.floor((t%3600)/60)}min`;
+  if (t >= 60) return `${Math.floor(t/60)}min ${t%60}s`;
+  return `${t}s`;
+};
+function parseRewardText(r) {
+  if (!r) return 'Desconocida';
+  if (r.type === 4) return `${r.orb_quantity || 0} Orbs`;
+  if (r.type === 3) return r.messages?.name || 'Decoración';
+  if (r.type === 1) return r.messages?.name || 'Item';
+  return 'Desconocida';
+}
+function getBestTask(tasks) {
+  let selected = null, best = 999;
+  for (const [type, data] of Object.entries(tasks || {})) {
+    if (!TASK_TYPES[type]) continue;
+    const p = TASK_PRIORITY.indexOf(type);
+    if (p !== -1 && p < best) { best = p; selected = { taskType: type, taskData: data }; }
+  }
+  return selected;
+}
+function createProgressBar(current, total, size = 20) {
+  const pct = clamp(Math.floor((current/total)*100), 0, 100);
+  const filled = Math.round((pct/100)*size);
+  return `[${'█'.repeat(filled)}${'░'.repeat(size-filled)}] ${pct}%`;
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+//  DOM
+// ═══════════════════════════════════════════════════════════════════════════
+const els = {};
+`tokenInput toggleToken forgetToken userChip userLabel settingsDrawer drawerBackdrop closeSettings
+statUser statOrbs statQuests statQuestsCard progressBox progressText progressFill progressPct
+elapsedText remainingText originWarn originVal
+questList questItems questCount refreshQuests startBtn stopBtn log
+skipGames hideGamesList autoClaim autoClaimOnLoad autoRefresh verboseLog videoSpeed accOptions toasts
+claimBanner claimBannerText claimBannerHint claimAllBtn claimCount claimCountWrap`
+  .split(/\s+/).forEach(id => { els[id] = $(id); });
+
+const state = {
+  token: '',
+  tokenValid: false,
+  user: null,
+  quests: [],
+  running: false,
+  abort: false,
+  stats: { done: 0, failed: 0 },
+  farmStartTime: 0,
+  currentQuestStartTime: 0,
+  videoSpeed: 1,
+  autoRefreshTimer: null,
+  claimAttempts: {},
+  loadingQuests: false
+};
+
+// ═══════════════════════════════════════════════════════════════════════════
+//  PERSISTENCIA
+// ═══════════════════════════════════════════════════════════════════════════
+function loadCfg() { try { return JSON.parse(localStorage.getItem(STORE_KEY) || '{}'); } catch { return {}; } }
+function saveCfg() {
+  const cfg = loadCfg();
+  cfg.token = els.tokenInput.value.trim();
+  cfg.skipGames = els.skipGames.checked;
+  cfg.hideGamesList = els.hideGamesList.checked;
+  cfg.autoClaim = els.autoClaim.checked;
+  cfg.autoClaimOnLoad = els.autoClaimOnLoad.checked;
+  cfg.autoRefresh = els.autoRefresh.checked;
+  cfg.verboseLog = els.verboseLog.checked;
+  cfg.videoSpeed = parseFloat(els.videoSpeed.value) || 1;
+  try { localStorage.setItem(STORE_KEY, JSON.stringify(cfg)); } catch {}
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+//  TOAST
+// ═══════════════════════════════════════════════════════════════════════════
+let lastToasts = [];
+function toast(msg, type='info', ms=3500) {
+  const now = Date.now();
+  lastToasts = lastToasts.filter(t => now - t.time < 2500);
+  if (lastToasts.some(t => t.msg === msg && t.type === type)) return;
+  lastToasts.push({ msg, type, time: now });
+
+  const t = document.createElement('div');
+  t.className = 'toast ' + type;
+  t.innerHTML = ic(type === 'ok' ? 'check' : (type === 'err' || type === 'warn') ? 'alert' : type === 'gift' ? 'gift' : 'info') + `<span>${escapeHtml(msg)}</span>`;
+  els.toasts.appendChild(t);
+  while (els.toasts.children.length > 3) els.toasts.removeChild(els.toasts.firstChild);
+  requestAnimationFrame(() => requestAnimationFrame(() => t.classList.add('show')));
+  setTimeout(() => { t.classList.remove('show'); setTimeout(() => t.remove(), 500); }, ms);
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+//  LOG
+// ═══════════════════════════════════════════════════════════════════════════
+function log(msg, type='info') {
+  const line = document.createElement('div');
+  line.className = 'log-line log-' + type;
+  const time = new Date().toLocaleTimeString('es-ES', { hour12: false });
+  line.innerHTML = `<span class="log-time">${time}</span><span class="log-msg">${escapeHtml(msg)}</span>`;
+  els.log.appendChild(line);
+  els.log.scrollTop = els.log.scrollHeight;
+  while (els.log.children.length > 500) els.log.removeChild(els.log.firstChild);
+}
+function clearLog() { els.log.innerHTML = ''; }
+
+// ═══════════════════════════════════════════════════════════════════════════
+//  PROGRESO
+// ═══════════════════════════════════════════════════════════════════════════
+function setProgress(pct, label, elapsedSec, remainingSec) {
+  els.progressBox.hidden = false;
+  els.progressFill.style.width = clamp(pct,0,100) + '%';
+  els.progressPct.textContent = Math.round(clamp(pct,0,100)) + '%';
+  if (label) els.progressText.textContent = label;
+  if (elapsedSec != null) els.elapsedText.textContent = formatTime(elapsedSec);
+  if (remainingSec != null) {
+    if (!isFinite(remainingSec) || remainingSec < 0) els.remainingText.textContent = '—';
+    else els.remainingText.textContent = formatTime(remainingSec);
+  }
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+//  ACORDEÓN + DRAWER
+// ═══════════════════════════════════════════════════════════════════════════
+Array.from(document.querySelectorAll('.acc')).forEach(acc => acc.querySelector('.acc-head').addEventListener('click', () => {
+  const open = !acc.classList.contains('open');
+  acc.classList.toggle('open', open);
+  acc.querySelector('.acc-head').setAttribute('aria-expanded', String(open));
+}));
+
+let lastFocus = null;
+function openDrawer() {
+  lastFocus = document.activeElement;
+  els.settingsDrawer.classList.add('open');
+  els.drawerBackdrop.classList.add('open');
+  els.settingsDrawer.setAttribute('aria-hidden', 'false');
+  requestAnimationFrame(() => els.settingsDrawer.focus({ preventScroll: true }));
+}
+function closeDrawer() {
+  els.settingsDrawer.classList.remove('open');
+  els.drawerBackdrop.classList.remove('open');
+  els.settingsDrawer.setAttribute('aria-hidden', 'true');
+  if (lastFocus && lastFocus.focus) lastFocus.focus();
+}
+els.userChip.onclick = openDrawer;
+els.closeSettings.onclick = closeDrawer;
+els.drawerBackdrop.onclick = closeDrawer;
+document.addEventListener('keydown', e => { if (e.key === 'Escape') closeDrawer(); });
+
+// ═══════════════════════════════════════════════════════════════════════════
+//  TOKEN
+// ═══════════════════════════════════════════════════════════════════════════
+function updateChip(name, label) {
+  els.userChip.classList.remove('connected', 'error', 'loading');
+  if (name) els.userChip.classList.add(name);
+  if (label) els.userChip && (els.userLabel.textContent = label);
+}
+
+async function verifyToken(token) {
+  if (!IS_VALID_ORIGIN) {
+    els.originWarn.hidden = false;
+    els.originVal.textContent = location.protocol;
+    updateChip('error', 'Origen bloqueado');
+    els.statUser.textContent = '—';
+    els.startBtn.disabled = true;
+    log('❌ Estás abriendo el HTML desde un archivo local.', 'err');
+    log('Discord rechaza peticiones desde content:// o file:// (origin=null).', 'err');
+    log('→ Súbelo a GitHub Pages o Netlify y ábrelo desde https://', 'warn');
+    toast('Abre el HTML desde una URL https:// (no desde ZArchiver).', 'err', 9000);
+    return;
+  }
+
+  token = (token || '').trim();
+  if (!token) {
+    state.tokenValid = false; state.user = null; state.token = '';
+    updateChip(null, 'Conectar');
+    els.statUser.textContent = '—';
+    els.startBtn.disabled = true;
+    stopAutoRefresh();
+    return;
+  }
+  updateChip('loading', 'Verificando');
+  try {
+    const res = await fetch(`${API}/users/@me`, { headers: { 'Authorization': token, 'Accept': '*/*' } });
+    if (res.ok) {
+      const user = await res.json();
+      state.user = user;
+      state.tokenValid = true;
+      state.token = token;
+      updateChip('connected', '@' + user.username);
+      els.statUser.textContent = (user.global_name || user.username).substring(0,12);
+      els.startBtn.disabled = false;
+      log(`Conectado como ${user.global_name || user.username}`, 'ok');
+      await refreshBalance();
+      await loadQuests();
+      if (els.autoClaimOnLoad.checked) {
+        const pend = state.quests.filter(q => q.completed && !q.claimed);
+        if (pend.length) {
+          log(`Detectadas ${pend.length} recompensa(s) sin canjear.`, 'claim');
+          await claimAllPending(true);
+        }
+      }
+      startAutoRefresh();
+    } else {
+      state.tokenValid = false;
+      state.user = null;
+      updateChip('error', 'Token inválido');
+      els.statUser.textContent = '—';
+      els.startBtn.disabled = true;
+      log(`Token rechazado (HTTP ${res.status})`, 'err');
+      stopAutoRefresh();
+    }
+  } catch (err) {
+    state.tokenValid = false;
+    updateChip('error', 'Error de red');
+    log('Error de red: ' + err.message, 'err');
+  }
+}
+
+async function refreshBalance() {
+  if (!state.token) return null;
+  try {
+    const res = await fetch(`${API}/users/@me/virtual-currency/balance`, {
+      headers: { 'Authorization': state.token }
+    });
+    if (res.ok) {
+      const data = await res.json();
+      const bal = data.balance || 0;
+      els.statOrbs.textContent = bal.toLocaleString('es-ES');
+      return bal;
+    }
+  } catch {}
+  return null;
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+//  API HELPER
+// ═══════════════════════════════════════════════════════════════════════════
+async function apiRequest(endpoint, method='GET', body=null, timeoutMs=15000) {
+  const headers = {
+    'authorization':      state.token,
+    'x-super-properties': SUPER_PROPS,
+    'user-agent':         UA,
+    'accept-language':    'pt-BR,pt;q=0.9,en-US;q=0.8,en;q=0.7',
+    'sec-ch-ua':          '"Chromium";v="138", "Not=A?Brand";v="8"',
+    'sec-ch-ua-mobile':   '?0',
+    'sec-ch-ua-platform': '"Windows"',
+    'origin':             'https://discord.com',
+    'referer':            'https://discord.com/channels/@me'
+  };
+  if (body) headers['content-type'] = 'application/json';
+
+  const ctrl = new AbortController();
+  const timer = setTimeout(() => ctrl.abort(), timeoutMs);
+
+  try {
+    const res = await fetch(`${API}${endpoint}`, {
+      method,
+      headers,
+      body: body ? JSON.stringify(body) : null,
+      signal: ctrl.signal,
+      mode: 'cors',
+      credentials: 'omit',
+      cache: 'no-store'
+    });
+    const data = await res.json().catch(() => null);
+    return { status: res.status, data };
+  } catch (err) {
+    return { status: 0, data: null, error: err.message };
+  } finally {
+    clearTimeout(timer);
+  }
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+//  CARGAR MISIONES
+// ═══════════════════════════════════════════════════════════════════════════
+async function loadQuests(silent = false) {
+  if (!state.token || state.loadingQuests) return;
+  state.loadingQuests = true;
+  if (!silent) {
+    els.questItems.innerHTML = '';
+    els.questList.hidden = true;
+  }
+  try {
+    const res = await apiRequest(`/quests/@me?_t=${Date.now()}`, 'GET');
+    if (res.status !== 200 || !res.data?.quests) {
+      if (!silent) log(`No se pudieron cargar misiones (HTTP ${res.status})`, 'err');
+      return;
+    }
+    const now = new Date();
+    const quests = [];
+    for (const q of res.data.quests) {
+      if (new Date(q.config.expires_at) < now) continue;
+      const completed = !!q.user_status?.completed_at;
+      const claimed = !!q.user_status?.claimed_at;
+      if (claimed) continue; // ya canjeada (aquí o fuera) → fuera de la lista
+
+      const tasks = q.config.task_config_v2?.tasks || {};
+      const best = getBestTask(tasks);
+      if (!best) continue;
+      const target = best.taskData?.target || 0;
+      const reward = q.config.rewards_config?.rewards?.[0];
+      const rewardText = parseRewardText(reward);
+      const rewardType = reward?.type || 0;
+      const isVideo = best.taskType.startsWith('WATCH_');
+      const isGame = best.taskType.startsWith('PLAY_');
+      const isItem = rewardType === 3 || rewardType === 1;
+      quests.push({
+        id: q.id,
+        name: q.config.messages?.quest_name || 'Misión',
+        taskType: best.taskType,
+        target,
+        rewardText,
+        rewardType,
+        enrolled: !!q.user_status?.enrolled_at,
+        completed,
+        claimed: false,
+        isVideo, isGame, isItem,
+        isOrb: /orbs?/i.test(rewardText)
+      });
+    }
+
+    const rank = q => {
+      if (q.completed) return 0;
+      if (q.isVideo) return q.target <= 180 ? 1 : 2;
+      if (q.isItem) return 3;
+      if (q.isGame) return 4;
+      return 5;
+    };
+    quests.sort((a,b) => {
+      const ra = rank(a), rb = rank(b);
+      if (ra !== rb) return ra - rb;
+      return a.target - b.target;
+    });
+
+    const prevIds = new Set(state.quests.map(q => q.id));
+    const newIds = new Set(quests.map(q => q.id));
+    const removed = [...prevIds].filter(id => !newIds.has(id)).length;
+
+    state.quests = quests;
+    renderQuests();
+    updateClaimBanner();
+    els.statQuests.textContent = quests.length;
+
+    if (silent && removed > 0) {
+      log(`🔄 Auto-actualizado: ${removed} misión(es) canjeada(s) fuera de aquí`, 'ok');
+    }
+    if (!silent) {
+      const vids = quests.filter(q => q.isVideo).length;
+      const games = quests.filter(q => q.isGame).length;
+      const items = quests.filter(q => q.isItem).length;
+      const comp = quests.filter(q => q.completed).length;
+      log(`${quests.length} misión(es): ${comp} completada(s), ${vids} vídeo(s), ${items} item(s), ${games} juego(s)`, 'ok');
+    }
+  } catch (err) {
+    if (!silent) log('Error al cargar misiones: ' + err.message, 'err');
+  } finally {
+    state.loadingQuests = false;
+  }
+}
+
+function updateClaimBanner() {
+  const pending = state.quests.filter(q => q.completed && !q.claimed);
+  if (pending.length) {
+    els.claimBanner.hidden = false;
+    els.claimBannerText.textContent = `${pending.length} recompensa(s) sin canjear`;
+    els.claimBannerHint.textContent = 'Pulsa "Canjear todo". Si falla, ábrelas en Discord y se quitarán solas al refrescar.';
+    els.claimCountWrap.hidden = false;
+    els.claimCount.textContent = pending.length;
+    els.statQuestsCard.classList.add('pending-glow');
+  } else {
+    els.claimBanner.hidden = true;
+    els.claimCountWrap.hidden = true;
+    els.statQuestsCard.classList.remove('pending-glow');
+  }
+}
+
+function renderQuests() {
+  const hideGames = els.hideGamesList.checked;
+  const visible = hideGames ? state.quests.filter(q => !q.isGame) : state.quests;
+
+  if (!visible.length) {
+    els.questList.hidden = true;
+    return;
+  }
+  els.questList.hidden = false;
+  els.questCount.textContent = visible.length;
+
+  els.questItems.innerHTML = visible.map(q => {
+    const claimable = q.completed && !q.claimed;
+    let cat, catLabel, priority;
+    if (claimable) { cat = 'claimable'; catLabel = 'Canjeable'; priority = 0; }
+    else if (q.isVideo) {
+      if (q.target <= 180) { cat = 'short-video'; catLabel = 'Vídeo corto'; priority = 1; }
+      else { cat = 'long-video'; catLabel = 'Vídeo largo'; priority = 2; }
+    }
+    else if (q.isItem) { cat = 'free-item'; catLabel = 'Item gratis'; priority = 3; }
+    else if (q.isGame) { cat = 'game'; catLabel = 'Juego'; priority = 4; }
+    else { cat = 'other'; catLabel = 'Otro'; priority = 5; }
+
+    const isSkipped = els.skipGames.checked && q.isGame;
+    const typeIcon = q.isVideo ? 'video' : q.isGame ? 'gamepad' : 'user';
+    let stCls, stTxt;
+    if (claimable) { stCls = 'claimable'; stTxt = 'listo para canjear'; }
+    else if (isSkipped) { stCls = 'pending'; stTxt = 'omitida'; }
+    else { stCls = 'pending'; stTxt = 'pendiente'; }
+
+    const btnHtml = claimable
+      ? `<button class="btn gift sm claim-btn" data-claim-id="${escapeHtml(q.id)}">${ic('gift')}Canjear</button>`
+      : '';
+    const badge = priority > 0 ? `<span class="quest-priority p${priority}">${priority}</span>` : '';
+    const rewardClass = q.isOrb ? '' : ' free';
+
+    return `<div class="quest${claimable ? ' claimable' : ''}${isSkipped ? ' skipped' : ''}" data-type="${q.taskType}" data-cat="${cat}" data-id="${escapeHtml(q.id)}">
+      <div class="quest-icon">${ic(claimable ? 'gift' : typeIcon)}${badge}</div>
+      <div class="quest-info">
+        <div class="quest-name">${escapeHtml(q.name)}</div>
+        <div class="quest-meta">
+          <span>${escapeHtml(TASK_TYPES[q.taskType] || q.taskType)}</span>
+          <span class="duration">${getTaskDuration(q.target)}</span>
+          <span>${catLabel}</span>
+        </div>
+        ${btnHtml ? `<div class="quest-btn">${btnHtml}</div>` : ''}
+      </div>
+      <div class="quest-reward${rewardClass}">${ic(q.isOrb ? 'coins' : 'gift')}${escapeHtml(q.rewardText)}</div>
+      <div class="quest-st ${stCls}" data-st>${stTxt}</div>
+    </div>`;
+  }).join('');
+
+  els.questItems.querySelectorAll('.claim-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const id = btn.dataset.claimId;
+      const quest = state.quests.find(q => q.id === id);
+      if (quest) claimReward(quest, false);
+    });
+  });
+}
+
+function setQuestStatus(id, status, text) {
+  const el = els.questItems.querySelector(`[data-id="${CSS.escape(id)}"] [data-st]`);
+  if (!el) return;
+  el.className = 'quest-st ' + status;
+  el.textContent = text;
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+//  CANJE
+// ═══════════════════════════════════════════════════════════════════════════
+async function claimReward(quest, silent = true) {
+  if (quest.claimed) return { ok: true, already: true };
+
+  const last = state.claimAttempts[quest.id] || 0;
+  if (Date.now() - last < 45000 && silent) return { ok: false, cooldown: true };
+  state.claimAttempts[quest.id] = Date.now();
+
+  if (!silent) log(`Canjeando: ${quest.name}`, 'claim');
+  setQuestStatus(quest.id, 'retry', 'canjeando');
+
+  const variants = [
+    { url: `/quests/${quest.id}/claim`,        body: { location: 11, is_targeted: false } },
+    { url: `/quests/${quest.id}/claim`,        body: {} },
+    { url: `/quests/${quest.id}/claim-reward`, body: { location: 11 } },
+    { url: `/quests/${quest.id}/claim-reward`, body: {} }
+  ];
+
+  for (const v of variants) {
+    const res = await apiRequest(v.url, 'POST', v.body, 12000);
+
+    if (res.status >= 200 && res.status < 300) {
+      quest.claimed = true;
+      setQuestStatus(quest.id, 'claimed', 'canjeado');
+      log(`✅ Canjeado: ${quest.rewardText}`, 'ok');
+      toast(`Canjeado: ${quest.rewardText}`, 'gift', 3000);
+      await refreshBalance();
+      return { ok: true };
+    }
+
+    // CAPTCHA / verificación humana detectada
+    if (res.status === 403 && /captcha|human|verif/i.test(JSON.stringify(res.data || {}))) {
+      state.abort = true;
+      state.running = false;
+      els.startBtn.hidden = false;
+      els.stopBtn.hidden = true;
+      log('🛑 Discord pidió CAPTCHA. Abre la app, resuélvelo y espera 15 min.', 'err');
+      toast('CAPTCHA detectado. Abre Discord, resuélvelo y espera 15 min.', 'err', 12000);
+      stopAutoRefresh();
+      return { ok: false, captcha: true };
+    }
+
+    if (res.status === 400) {
+      const msg = (res.data?.message || '').toLowerCase();
+      if (/already|claimed|ya canjead/i.test(msg)) {
+        quest.claimed = true;
+        setQuestStatus(quest.id, 'claimed', 'ya estaba');
+        log(`Ya estaba canjeado: ${quest.name}`, 'info');
+        return { ok: true, already: true };
+      }
+      continue;
+    }
+
+    if (res.status === 401 || res.status === 403) {
+      log(`⚠ Canje bloqueado (HTTP ${res.status}). Abre Discord manualmente.`, 'warn');
+      setQuestStatus(quest.id, 'retry', 'abrir Discord');
+      return { ok: false, auth: true };
+    }
+
+    if (res.status === 429) {
+      await sleep(jitter(8000, 4000));
+      continue;
+    }
+
+    if (res.status === 0 || res.status === 404 || res.status >= 500) continue;
+  }
+
+  setQuestStatus(quest.id, 'retry', 'abrir Discord');
+  if (!silent) {
+    toast('No se pudo canjear desde aquí. Ábrelo en Discord y se quitará al refrescar.', 'warn', 4500);
+  }
+  return { ok: false, manual: true };
+}
+
+async function claimAllPending(silent = false) {
+  const pending = state.quests.filter(q => q.completed && !q.claimed);
+  if (!pending.length) {
+    if (!silent) toast('No hay recompensas pendientes.', 'info', 2200);
+    return;
+  }
+  if (!silent) log(`Canjeando ${pending.length} recompensa(s)…`, 'claim');
+  let ok = 0;
+  for (let i = 0; i < pending.length; i++) {
+    const res = await claimReward(pending[i], silent);
+    if (res.ok) ok++;
+    if (i < pending.length - 1) await sleep(jitter(1500, 800));
+  }
+  if (!silent) {
+    if (ok === pending.length) toast(`${ok}/${pending.length} canjeada(s)`, 'gift', 3200);
+    else toast(`${ok}/${pending.length} canjeada(s). El resto, en Discord.`, 'warn', 4200);
+  } else if (ok > 0) {
+    log(`Canje automático: ${ok}/${pending.length}`, 'ok');
+  }
+  await refreshBalance();
+  updateClaimBanner();
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+//  EJECUCIÓN DE MISIÓN
+// ═══════════════════════════════════════════════════════════════════════════
+async function runQuest(quest) {
+  const { id, taskType, target, name } = quest;
+
+  if (quest.completed) {
+    if (els.autoClaim.checked && !quest.claimed) await claimReward(quest, true);
+    return true;
+  }
+
+  state.currentQuestStartTime = Date.now();
+  log(`▶ ${name} · ${TASK_TYPES[taskType]} · ${getTaskDuration(target)} · 🎁 ${quest.rewardText}`, 'info');
+  setQuestStatus(id, 'running', 'iniciando');
+
+  if (!quest.enrolled) {
+    const enroll = await apiRequest(`/quests/${id}/enroll`, 'POST', { location: 11, is_targeted: false, metadata_raw: null });
+    if (enroll.status !== 200) {
+      log(`Fallo al inscribirse (HTTP ${enroll.status})`, 'err');
+      setQuestStatus(id, 'error', 'error enroll');
+      return false;
+    }
+    quest.enrolled = true;
+    log('Inscrito', 'ok');
+  }
+
+  // ── WATCH_VIDEO ─────────────────────────────────────────────────────────
+  if (taskType.startsWith('WATCH_')) {
+    const speed = Math.max(1, state.videoSpeed || 1);
+    const step = Math.min(10 * speed, 25);
+    let timestamp = 0;
+    let currentProgress = 0;
+    let retries = 0;
+    const MAX_RETRIES = 15;
+
+    while (!state.abort && retries < MAX_RETRIES && currentProgress < target) {
+      const res = await apiRequest(`/quests/${id}/video-progress`, 'POST', { timestamp });
+
+      if (res.status === 400 || res.status === 429) {
+        retries++;
+        timestamp = Math.max(0, timestamp - 10);
+        await sleep(jitter(res.status === 429 ? 9000 : 4000, 2000));
+        continue;
+      }
+      if (res.status !== 200) {
+        retries++;
+        await sleep(jitter(3000, 1500));
+        continue;
+      }
+      retries = 0;
+
+      if (res.data?.completed_at) { currentProgress = target; break; }
+
+      currentProgress = timestamp;
+      if (currentProgress >= target) break;
+
+      timestamp += step;
+
+      const pct = Math.min(100, Math.round((currentProgress / target) * 100));
+      setQuestStatus(id, 'running', `${formatTime(currentProgress)} / ${formatTime(target)}`);
+      const elapsed = (Date.now() - state.currentQuestStartTime) / 1000;
+      const remaining = currentProgress > 0 ? (elapsed / currentProgress) * (target - currentProgress) : null;
+      setProgress(pct, `${name} · ${formatTime(currentProgress)} / ${formatTime(target)}`, elapsed, remaining);
+      if (els.verboseLog.checked && (timestamp % (step * 6) === 0)) {
+        log(`   ${createProgressBar(currentProgress, target)}`, 'info');
+      }
+      await sleep(jitter(2500, 2000));
+    }
+
+    if (!state.abort && currentProgress < target && retries < MAX_RETRIES) {
+      const finalRes = await apiRequest(`/quests/${id}/video-progress`, 'POST', { timestamp: target });
+      if (finalRes.status === 200) {
+        currentProgress = target;
+        log('   Progreso final confirmado', 'ok');
+      }
+    }
+
+    if (currentProgress < target && !state.abort) {
+      log(`   ⚠ Vídeo incompleto`, 'warn');
+      setQuestStatus(id, 'error', 'incompleto');
+      return false;
+    }
+  }
+
+  // ── PLAY_* ──────────────────────────────────────────────────────────────
+  else if (taskType.startsWith('PLAY_')) {
+    const streamKey = `call:${id}:${Date.now()}`;
+    const MAX_STUCK = 8;
+    let currentProgress = 0;
+    let stuck = 0;
+    try {
+      while (!state.abort && currentProgress < target) {
+        const res = await apiRequest(`/quests/${id}/heartbeat`, 'POST', { stream_key: streamKey, terminal: false });
+        if (res.status === 429) { await sleep(jitter(9000, 3000)); continue; }
+        if (res.status === 200) {
+          const data = res.data;
+          if (data?.completed_at || data?.user_status?.completed_at) { currentProgress = target; break; }
+          const newProgress = data?.progress?.[taskType]?.value ?? currentProgress;
+          if (newProgress > currentProgress) {
+            currentProgress = newProgress;
+            stuck = 0;
+            const pct = Math.min(100, Math.round((currentProgress / target) * 100));
+            setQuestStatus(id, 'running', `${formatTime(currentProgress)} / ${formatTime(target)}`);
+            const elapsed = (Date.now() - state.currentQuestStartTime) / 1000;
+            const remaining = currentProgress > 0 ? (elapsed / currentProgress) * (target - currentProgress) : null;
+            setProgress(pct, `${name} · ${formatTime(currentProgress)} / ${formatTime(target)}`, elapsed, remaining);
+            if (currentProgress >= target) break;
+          } else {
+            stuck++;
+            if (stuck >= MAX_STUCK) {
+              log(`   ⚠ Juego atascado, se omite`, 'warn');
+              setQuestStatus(id, 'error', 'atascada');
+              return false;
+            }
+            setQuestStatus(id, 'retry', 'esperando');
+          }
+        }
+        await sleep(jitter(24000, 3000));
+      }
+    } finally {
+      try { await apiRequest(`/quests/${id}/heartbeat`, 'POST', { stream_key: streamKey, terminal: true }); } catch {}
+    }
+    if (state.abort) { setQuestStatus(id, 'error', 'detenido'); return false; }
+  }
+
+  if (state.abort) { setQuestStatus(id, 'error', 'detenido'); return false; }
+
+  setQuestStatus(id, 'done', 'completado');
+  const totalElapsed = (Date.now() - state.currentQuestStartTime) / 1000;
+  setProgress(100, `${name} · completado`, totalElapsed, 0);
+  log(`✅ Completada: ${quest.rewardText}`, 'ok');
+  quest.completed = true;
+
+  if (els.autoClaim.checked && !quest.claimed) {
+    await sleep(2500);
+    await claimReward(quest, true);
+  }
+  return true;
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+//  FARM PRINCIPAL
+// ═══════════════════════════════════════════════════════════════════════════
+async function startFarm() {
+  if (state.running || !state.tokenValid) return;
+
+  const skipGames = els.skipGames.checked;
+  let list = state.quests.filter(q => !(q.completed && q.claimed));
+  if (skipGames) {
+    const before = list.length;
+    list = list.filter(q => !q.isGame);
+    const omitted = before - list.length;
+    if (omitted > 0) log(`Se omitirán ${omitted} misión(es) de juego.`, 'info');
+  }
+
+  if (!list.length) {
+    const vids = state.quests.filter(q => q.isVideo).length;
+    const games = state.quests.filter(q => q.isGame).length;
+    if (vids === 0 && games > 0 && skipGames) {
+      toast(`Solo hay ${games} juego(s). Desactiva "Omitir misiones de juego".`, 'warn', 4500);
+    } else if (state.quests.length === 0) {
+      toast('No hay misiones. Pulsa Actualizar.', 'warn', 3000);
+    } else {
+      toast('No hay misiones nuevas para ejecutar.', 'warn', 3000);
+    }
+    return;
+  }
+
+  state.running = true;
+  state.abort = false;
+  state.stats = { done: 0, failed: 0 };
+  state.farmStartTime = Date.now();
+  els.startBtn.hidden = true;
+  els.stopBtn.hidden = false;
+  clearLog();
+  log(`═══ Farm: ${list.length} misión(es) ═══`, 'info');
+  if (state.videoSpeed > 1) log(`Velocidad de vídeos: ${state.videoSpeed}×`, 'info');
+
+  for (let i = 0; i < list.length; i++) {
+    if (state.abort) break;
+    const q = list[i];
+    log(`── Misión ${i + 1}/${list.length} ──`, 'info');
+    const ok = await runQuest(q);
+    if (ok) state.stats.done++; else if (!state.abort) state.stats.failed++;
+
+    const elapsedGlobal = (Date.now() - state.farmStartTime) / 1000;
+    const globalPct = Math.round(((i + 1) / list.length) * 100);
+    const remainingGlobal = i + 1 < list.length ? (elapsedGlobal / (i + 1)) * (list.length - (i + 1)) : 0;
+    setProgress(globalPct, `${i + 1}/${list.length} · ${q.name.substring(0, 30)}`, elapsedGlobal, remainingGlobal);
+
+    if (i < list.length - 1 && !state.abort) {
+      log('   Esperando siguiente…', 'info');
+      await sleep(jitter(8000, 3000));
+    }
+  }
+
+  state.running = false;
+  els.startBtn.hidden = false;
+  els.stopBtn.hidden = true;
+
+  const totalElapsed = (Date.now() - state.farmStartTime) / 1000;
+  if (state.abort) {
+    log(`⏹ Detenido. ${state.stats.done}/${list.length} completadas`, 'warn');
+    setProgress(0, 'Detenido', totalElapsed, null);
+  } else {
+    log(`🏁 Listo: ${state.stats.done}/${list.length} completadas, ${state.stats.failed} fallidas`, 'ok');
+    setProgress(100, 'Completado', totalElapsed, 0);
+  }
+
+  await refreshBalance();
+
+  await sleep(2000);
+  const pend = state.quests.filter(q => q.completed && !q.claimed);
+  if (pend.length) {
+    log(`🔁 Reintentando canje de ${pend.length} pendiente(s)…`, 'claim');
+    for (const q of pend) {
+      await claimReward(q, true);
+      await sleep(jitter(1500, 800));
+    }
+  }
+
+  if (!state.abort) {
+    log('🔄 Actualizando lista…', 'info');
+    await loadQuests(true);
+    updateClaimBanner();
+  }
+}
+
+function stopFarm() {
+  if (!state.running) return;
+  state.abort = true;
+  log('Deteniendo…', 'warn');
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+//  AUTO-REFRESH
+// ═══════════════════════════════════════════════════════════════════════════
+function startAutoRefresh() {
+  stopAutoRefresh();
+  if (!els.autoRefresh.checked) return;
+  state.autoRefreshTimer = setInterval(async () => {
+    if (state.running) return;
+    if (!state.tokenValid) return;
+    if (document.hidden) return;
+    await loadQuests(true);
+    const pend = state.quests.filter(q => q.completed && !q.claimed);
+    for (const q of pend) {
+      const r = await claimReward(q, true);
+      if (r.ok) await sleep(600);
+    }
+    updateClaimBanner();
+  }, AUTO_REFRESH_MS);
+}
+function stopAutoRefresh() {
+  if (state.autoRefreshTimer) {
+    clearInterval(state.autoRefreshTimer);
+    state.autoRefreshTimer = null;
+  }
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+//  EVENTOS
+// ═══════════════════════════════════════════════════════════════════════════
+const scheduleVerify = debounce(() => verifyToken(els.tokenInput.value), 600);
+els.tokenInput.addEventListener('input', () => {
+  const t = els.tokenInput.value.trim();
+  state.tokenValid = false;
+  if (!t) { updateChip(null, 'Conectar'); els.statUser.textContent = '—'; els.startBtn.disabled = true; stopAutoRefresh(); return; }
+  updateChip('loading', 'Verificando');
+  scheduleVerify();
+});
+els.tokenInput.addEventListener('blur', () => { if (els.tokenInput.value.trim()) scheduleVerify(); });
+els.toggleToken.addEventListener('click', () => {
+  const hide = els.tokenInput.type === 'password';
+  els.tokenInput.type = hide ? 'text' : 'password';
+  els.toggleToken.innerHTML = ic(hide ? 'eye-off' : 'eye');
+});
+els.forgetToken.addEventListener('click', () => {
+  els.tokenInput.value = '';
+  state.token = ''; state.tokenValid = false; state.user = null; state.quests = [];
+  updateChip(null, 'Conectar');
+  els.statUser.textContent = '—'; els.statOrbs.textContent = '—'; els.statQuests.textContent = '—';
+  els.questList.hidden = true; els.claimBanner.hidden = true; els.startBtn.disabled = true;
+  clearLog();
+  stopAutoRefresh();
+  const cfg = loadCfg(); delete cfg.token;
+  try { localStorage.setItem(STORE_KEY, JSON.stringify(cfg)); } catch {}
+  toast('Token olvidado.', 'info', 2200);
+});
+els.refreshQuests.addEventListener('click', () => loadQuests(false));
+els.startBtn.addEventListener('click', startFarm);
+els.stopBtn.addEventListener('click', stopFarm);
+els.claimAllBtn.addEventListener('click', () => claimAllPending(false));
+els.videoSpeed.addEventListener('change', () => {
+  state.videoSpeed = parseFloat(els.videoSpeed.value) || 1;
+  saveCfg();
+  log(`Velocidad de vídeos: ${state.videoSpeed}×`, 'info');
+});
+els.autoRefresh.addEventListener('change', () => {
+  saveCfg();
+  if (els.autoRefresh.checked && state.tokenValid) startAutoRefresh();
+  else stopAutoRefresh();
+});
+[els.skipGames, els.hideGamesList, els.autoClaim, els.autoClaimOnLoad, els.verboseLog].forEach(el => el.addEventListener('change', () => {
+  saveCfg();
+  if (el === els.hideGamesList || el === els.skipGames) renderQuests();
+}));
+
+document.addEventListener('visibilitychange', () => {
+  if (!document.hidden && state.tokenValid && els.autoRefresh.checked) {
+    loadQuests(true);
+  }
+});
+
+// ═══════════════════════════════════════════════════════════════════════════
+//  INIT
+// ═══════════════════════════════════════════════════════════════════════════
+(function init() {
+  if (!IS_VALID_ORIGIN) {
+    els.originWarn.hidden = false;
+    els.originVal.textContent = location.protocol;
+    updateChip('error', 'Origen bloqueado');
+    els.startBtn.disabled = true;
+    log('⚠ Detectado origen inválido: ' + location.protocol, 'err');
+    log('Necesitas abrir este HTML desde una URL https://', 'warn');
+  }
+
+  const cfg = loadCfg();
+  if (IS_MOBILE && cfg.skipGames === undefined) els.skipGames.checked = true;
+  else if (typeof cfg.skipGames === 'boolean') els.skipGames.checked = cfg.skipGames;
+  if (typeof cfg.hideGamesList === 'boolean') els.hideGamesList.checked = cfg.hideGamesList;
+  if (typeof cfg.autoClaim === 'boolean') els.autoClaim.checked = cfg.autoClaim;
+  if (typeof cfg.autoClaimOnLoad === 'boolean') els.autoClaimOnLoad.checked = cfg.autoClaimOnLoad;
+  if (typeof cfg.autoRefresh === 'boolean') els.autoRefresh.checked = cfg.autoRefresh;
+  else els.autoRefresh.checked = true;
+  if (typeof cfg.verboseLog === 'boolean') els.verboseLog.checked = cfg.verboseLog;
+  if (cfg.videoSpeed) {
+    els.videoSpeed.value = String(cfg.videoSpeed);
+    state.videoSpeed = parseFloat(cfg.videoSpeed) || 1;
+  } else state.videoSpeed = 1;
+
+  if (cfg.token && IS_VALID_ORIGIN) {
+    els.tokenInput.value = cfg.token;
+    setTimeout(() => verifyToken(cfg.token), 300);
+  }
+})();
+
+})();
+</script>
+
+</body>
+</html>
